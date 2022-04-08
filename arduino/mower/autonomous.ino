@@ -14,7 +14,7 @@ void autoMove(){
 
       move(randomLeftOrRight(), 30 / 100.0 * 255);
       _delay(random(1, 3));
-      move(leftOrRight, 0);
+      move(randomLeftOrRight(), 0);
 
   }
   if(lineFollowerSensor.readSensors() == 0.000000){
@@ -29,7 +29,7 @@ void autoMove(){
   
       move(leftOrRight, 30 / 100.0 * 255);
       _delay(random(1, 3));
-      move(leftOrRight, 0);
+      move(randomLeftOrRight(), 0);
 
   }
 
