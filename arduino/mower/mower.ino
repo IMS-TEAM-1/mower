@@ -6,6 +6,7 @@
 #include "config.h"
 
 float timeAtLastUpdate = 0;
+const char MAX_MESSAGE_LENGTH = 12;
 
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
