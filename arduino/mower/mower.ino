@@ -19,15 +19,10 @@ typedef enum {
   LEFT,
   RIGHT } direction_t;
 
-void setupSensors(){
-  attachInterrupt(Encoder_1.getIntNum(), isr_process_encoder1, RISING);
-  attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
-}
-
 //Initiliazes sensors, serial, ports etc.
 void setup() {
   setupSerial();
-  setupSensors();
+  setupEncoders();
   setupMotors();
 
   //Is this really needed?

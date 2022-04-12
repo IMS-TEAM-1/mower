@@ -2,8 +2,7 @@ void autoMove(){
   getSerialData();
   int leftOrRight = random(3, 5);
   
-  if(ultraSonicSensor.distanceCm() < 10){
-      Serial.println("Ultrasonic sensor triggered");
+  if(getUltraSonicSensorTriggered()){
       Encoder_1.setTarPWM(0);
       Encoder_2.setTarPWM(0);
       _delay(0.5);
@@ -17,8 +16,7 @@ void autoMove(){
       move(randomLeftOrRight(), 0);
 
   }
-  if(lineFollowerSensor.readSensors() == 0.000000){
-      Serial.println("IR sensor triggered");
+  if(getLineFollowerTriggered()){
       Encoder_1.setTarPWM(0);
       Encoder_2.setTarPWM(0);
       _delay(0.5);

@@ -4,3 +4,6 @@
 //Sensor ports
 #define ULTRASONIC_SENSOR_PORT 10
 #define LINE_FOLLOWER_SENSOR_PORT 9
+
+//Distance from object it should not detect and avoid
+#define ULTRA_SONIC_SENSOR_DISTANCE_CM 10
