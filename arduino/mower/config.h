@@ -7,3 +7,6 @@
 
 //Distance from object it should not detect and avoid
 #define ULTRA_SONIC_SENSOR_DISTANCE_CM 10
+
+//Motor constant, converts 0-100% to a value of 0-255 for the PWM control
+#define PERCENTAGE_TO_PWM_FACTOR 2.5

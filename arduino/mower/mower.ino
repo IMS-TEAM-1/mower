@@ -5,8 +5,13 @@
 #include <Math.h>
 #include "config.h"
 
+int currentSpeedLeftMotor = 0;
+int currentSpeedRightMotor = 0;
+int currentAngle = 0;
+
 float timeAtLastUpdate = 0;
 const char MAX_MESSAGE_LENGTH = 12;
+bool isInAutonomousMode = false;
 
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
@@ -23,7 +28,7 @@ typedef enum {
 //Initiliazes sensors, serial, ports etc.
 void setup() {
   setupSerial();
-  setupEncoders();
+  setupEncoderInterrupts();
   setupMotors();
 
   //Is this really needed?
@@ -32,5 +37,16 @@ void setup() {
 
 //Main loop, seen as the main program of the MCU
 void loop() {
-  autoMove();
+  getSerialData();
+    
+  if(isInAutonomousMode){
+    doAutonomousTick();
+  }
+  else{
+    doManualControlTick();
+  }
+}
+
+void doManualControlTick(){
+  moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentSpeedLeftMotor, currentAngle),calculateRightMotorSpeed(currentSpeedRightMotor, currentAngle));
 }

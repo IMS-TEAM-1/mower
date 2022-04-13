@@ -6,33 +6,40 @@ void getSerialData(){
   if (millis() - timeAtLastUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     timeAtLastUpdate = millis();
     //Serial.println("update");
-    while (Serial.available() > 0) {
-      //Create a place to hold the incoming message
-       static char message[MAX_MESSAGE_LENGTH];
-       static unsigned int message_pos = 0;
     
-       //Read the next available byte in the serial receive buffer
-       char inByte = Serial.read();
-    
-       //Message coming in (check not terminating character) and guard for over message size
-       if ( inByte != '\n' && (message_pos < MAX_MESSAGE_LENGTH - 1) ) {
-         //Add the incoming byte to our message
-         message[message_pos] = inByte;
-         message_pos++;
-       }
-       //Full message received...
-       else
-       {
-         //Add null character to string
-         message[message_pos] = '\0';
-    
-         //Print the message (or do other things)
-         Serial.println(message);
-         Serial.println("ack" + String(message));
-    
-         //Reset for the next message
-         message_pos = 0;
-       }
+    if(Serial.available() > 0){
+      while (Serial.available() > 0) {
+        //Create a place to hold the incoming message
+        static char message[MAX_MESSAGE_LENGTH];
+        static unsigned int message_pos = 0;
+      
+        //Read the next available byte in the serial receive buffer
+        char inByte = Serial.read();
+     
+        //Message coming in (check not terminating character) and guard for over message size
+        
+        if ( inByte != '\n' && (message_pos < MAX_MESSAGE_LENGTH - 1) ) {
+          //Add the incoming byte to our message
+          message[message_pos] = inByte;
+          message_pos++;
+        }
+        //Full message received...
+        else {
+          //Add null character to string
+          message[message_pos] = '\0';
+      
+          //Print the message (or do other things)
+          Serial.println(message);
+          Serial.println("ack" + String(message));
+      
+          //Reset for the next message
+          message_pos = 0;
+        }
+      }
+    }
+    else{
+      Serial.println("NO COMMUNICATION");
+      resetMotorValues();
     }
   }
 }

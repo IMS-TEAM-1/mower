@@ -1,5 +1,4 @@
-void autoMove(){
-  getSerialData();
+void doAutonomousTick(){
   int leftOrRight = random(3, 5);
   
   if(getUltraSonicSensorTriggered()){
