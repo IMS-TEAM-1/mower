@@ -1,3 +1,7 @@
+int currentSpeedLeftMotor = 0;
+int currentSpeedRightMotor = 0;
+int currentAngle = 0;
+
 void setupMotors(){
   //Probably sets up PWM-control for motors
   TCCR1A = _BV(WGM10);
@@ -26,6 +30,7 @@ void move(direction_t direction, int speed)
 {
   int leftSpeed = 0;
   int rightSpeed = 0;
+  
   if(direction == FORWARD){
     leftSpeed = -speed;
     rightSpeed = speed;
@@ -38,7 +43,11 @@ void move(direction_t direction, int speed)
   }else if(direction == RIGHT){
     leftSpeed = speed;
     rightSpeed = speed;
+  }else if(direction = NONE) {
+    leftSpeed = 0;
+    rightSpeed = 0;
   }
+  
   Encoder_1.setTarPWM(leftSpeed);
   Encoder_2.setTarPWM(rightSpeed);
 }

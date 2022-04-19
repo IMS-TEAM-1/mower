@@ -10,3 +10,14 @@
 
 //Motor constant, converts 0-100% to a value of 0-255 for the PWM control
 #define PERCENTAGE_TO_PWM_FACTOR 2.5
+
+//Motor speed constant
+#define MOTOR_SPEED_MANUAL 100
+#define MOTOR_SPEED_AUTONOMOUS_FORWARD 100
+#define MOTOR_SPEED_AUTONOMOUS_BACKWARD 40
+#define MOTOR_SPEED_AUTONOMOUS_LEFT 100
+#define MOTOR_SPEED_AUTONOMOUS_RIGHT 100
+#define MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT 100
+
+//Camera capture time, in ms
+#define CAMERA_CAPTURE_TIME 10000

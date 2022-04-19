@@ -1,8 +1,11 @@
+String recievedMessage1;
+String recievedMessage2;
+
 void setupSerial(){
   Serial.begin(9600); //Initiate serial communication
 }
 
-void getSerialData(){
+void readSerialData(){
   if (millis() - timeAtLastUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     timeAtLastUpdate = millis();
     //Serial.println("update");
@@ -28,9 +31,7 @@ void getSerialData(){
           //Add null character to string
           message[message_pos] = '\0';
       
-          //Print the message (or do other things)
-          Serial.println(message);
-          Serial.println("ack" + String(message));
+          checkRecievedMessage(message);
       
           //Reset for the next message
           message_pos = 0;
@@ -39,7 +40,61 @@ void getSerialData(){
     }
     else{
       Serial.println("NO COMMUNICATION");
-      resetMotorValues();
+      currentState = STANDBY;
     }
   }
+}
+
+String getRecievedSerialData1(){
+  return recievedMessage1;
+}
+
+String getRecievedSerialData2(){
+  return recievedMessage2;
+}
+
+void checkRecievedMessage(char message[MAX_MESSAGE_LENGTH]){
+  char tempRecievedMessage1[MAX_MESSAGE_LENGTH];
+  char tempRecievedMessage2[MAX_MESSAGE_LENGTH];
+
+  bool colonDetected = false;
+  int tempRecievedMessage1Len = 0;
+  
+  for(int i = 0; i < (sizeof(message) - 1); i++){
+    if(message[i] == ":")
+    {
+      colonDetected = true;
+      tempRecievedMessage1Len = sizeof(tempRecievedMessage1) - 1;
+    }
+    
+    if(!colonDetected){
+      tempRecievedMessage1[i] = message[i];
+    }
+    else{
+      tempRecievedMessage2[(i - tempRecievedMessage1Len)] = message[i];
+    }
+  }
+  
+  recievedMessage1 = String(tempRecievedMessage1);
+  recievedMessage2 = String(tempRecievedMessage2);
+}
+
+void sendMessageNOK(String message){
+  Serial.println(message + ":" + "nok");
+}
+
+void sendMessageAck(String message){
+  Serial.println(message + ":" + "ack");
+}
+
+void sendSerialUltraSonicTriggered(){
+  Serial.println("CAPTURE");
+}
+
+bool recievedCaptureAck(){
+  if(recievedMessage1 == "CAPTURE" && recievedMessage2 == "ack"){
+    return true;
+  }
+  else
+    return false;
 }
