@@ -1,13 +1,14 @@
-String recievedMessage1;
-String recievedMessage2;
+String recievedMessageFirstPart;
+String recievedMessageSecondPart;
+float timeAtLastSerialUpdate = 0;
 
 void setupSerial(){
-  Serial.begin(9600); //Initiate serial communication
+  Serial.begin(115200); //Initiate serial communication
 }
 
 void readSerialData(){
-  if (millis() - timeAtLastUpdate > SERIAL_UPDATE_FREQUENCY_MS){
-    timeAtLastUpdate = millis();
+  if (millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
+    timeAtLastSerialUpdate = millis();
     //Serial.println("update");
     
     if(Serial.available() > 0){
@@ -39,44 +40,43 @@ void readSerialData(){
       }
     }
     else{
-      Serial.println("NO COMMUNICATION");
       currentState = STANDBY;
     }
   }
 }
 
-String getRecievedSerialData1(){
-  return recievedMessage1;
+String getRecievedSerialDataFirstPart(){
+  return recievedMessageFirstPart;
 }
 
-String getRecievedSerialData2(){
-  return recievedMessage2;
+String getRecievedSerialDataSecondPart(){
+  return recievedMessageSecondPart;
 }
 
 void checkRecievedMessage(char message[MAX_MESSAGE_LENGTH]){
-  char tempRecievedMessage1[MAX_MESSAGE_LENGTH];
-  char tempRecievedMessage2[MAX_MESSAGE_LENGTH];
+  char temprecievedMessageFirstPart[MAX_MESSAGE_LENGTH];
+  char temprecievedMessageSecondPart[MAX_MESSAGE_LENGTH];
 
   bool colonDetected = false;
-  int tempRecievedMessage1Len = 0;
+  int temprecievedMessageFirstPartLen = 0;
   
   for(int i = 0; i < (sizeof(message) - 1); i++){
-    if(message[i] == ":")
+    if(message[i] == ':')
     {
       colonDetected = true;
-      tempRecievedMessage1Len = sizeof(tempRecievedMessage1) - 1;
+      temprecievedMessageFirstPartLen = sizeof(temprecievedMessageFirstPart) - 1;
     }
     
     if(!colonDetected){
-      tempRecievedMessage1[i] = message[i];
+      temprecievedMessageFirstPart[i] = message[i];
     }
     else{
-      tempRecievedMessage2[(i - tempRecievedMessage1Len)] = message[i];
+      temprecievedMessageSecondPart[(i - temprecievedMessageFirstPartLen)] = message[i];
     }
   }
   
-  recievedMessage1 = String(tempRecievedMessage1);
-  recievedMessage2 = String(tempRecievedMessage2);
+  recievedMessageFirstPart = String(temprecievedMessageFirstPart);
+  recievedMessageSecondPart = String(temprecievedMessageSecondPart);
 }
 
 void sendMessageNOK(String message){
@@ -92,9 +92,99 @@ void sendSerialUltraSonicTriggered(){
 }
 
 bool recievedCaptureAck(){
-  if(recievedMessage1 == "CAPTURE" && recievedMessage2 == "ack"){
+  if(recievedMessageFirstPart == "CAPTURE" && recievedMessageSecondPart == "ack"){
     return true;
   }
   else
     return false;
+}
+
+bool ackMessage(String messageToAck){
+  switch(convertMessageFirstPartToEnum(messageToAck)){
+    case(Hello):
+      sendMessageAck("Hello");
+      return true;
+    case(Standby):
+      currentState = STANDBY;
+      sendMessageAck("STANDBY");
+      return true;
+    case(Autonomous):
+      currentState = AUTONOMOUS;
+      sendMessageAck("AUTONOMOUS");
+      return true;
+    case(Manual):
+      currentState = MANUAL;
+      if(ackMessageSecondPart(getRecievedSerialDataSecondPart())){
+        return true;
+      }
+      else{
+        return false;
+      }
+    default:
+      return false;
+  }
+}
+
+bool ackMessageSecondPart(String messageToAck){
+  switch(convertMessageSecondPartToEnum(messageToAck)){
+    case(None):
+      currentDirection = NONE;
+      sendMessageAck("NONE");
+      return true;
+    case(Forward):
+      currentDirection = FORWARD;
+      sendMessageAck("FORWARD");
+      return true;
+    case(Backward):
+      currentDirection = BACKWARD;
+      sendMessageAck("BACKWARD");
+      return true;
+    case(Left):
+      currentDirection = LEFT;
+      sendMessageAck("LEFT");
+      return true;;
+    case(Right):
+      currentDirection = RIGHT;
+      sendMessageAck("RIGHT");
+      return true;
+    default:
+      return false;
+  }
+}
+
+messageFirstPart_t convertMessageFirstPartToEnum(String message){
+  if(message.equals("MANUAL")){
+    return Manual;
+  }
+  else if(message.equals("Hello")){
+    return Hello;
+  }
+  else if(message.equals("STANDBY")){
+    return Standby;
+  }
+  else if(message.equals("AUTONOMOUS")){
+    return Autonomous;
+  }
+  else
+    while(true) Serial.println("ERROR IN CONVERSION OF MESSAGE IN mower.ino");
+}
+
+messageSecondPart_t convertMessageSecondPartToEnum(String message){
+  if(message.equals("FORWARD")){
+    return Forward;
+  }
+  else if(message.equals("BACKWARD")){
+    return Backward;
+  }
+  else if(message.equals("LEFT")){
+    return Left;
+  }
+  else if(message.equals("RIGHT")){
+    return Right;
+  }
+  if(message.equals("NONE")){
+    return None;
+  }
+  else
+    while(true) Serial.println("ERROR IN CONVERSION OF MESSAGE IN mower.ino");
 }

@@ -1,3 +1,30 @@
+//Typedef enums
+//What state the mower is in right now and what direction the mower should go for when moving
+typedef enum {
+  STANDBY,
+  AUTONOMOUS,
+  MANUAL } mowerState_t;
+typedef enum {
+  NONE,
+  FORWARD,
+  BACKWARD,
+  LEFT,
+  RIGHT } direction_t;
+
+//Enums of what messages the mower can recieve and respond to
+typedef enum {
+  Hello,
+  Standby,
+  Autonomous,
+  Manual } messageFirstPart_t;
+
+typedef enum {
+  None,
+  Forward,
+  Backward,
+  Left,
+  Right } messageSecondPart_t;
+
 //Calculated frequency in ms, deciding update frequency during serial communication.
 #define SERIAL_UPDATE_FREQUENCY_MS 50
 
@@ -13,6 +40,7 @@
 
 //Motor speed constant
 #define MOTOR_SPEED_MANUAL 100
+
 #define MOTOR_SPEED_AUTONOMOUS_FORWARD 100
 #define MOTOR_SPEED_AUTONOMOUS_BACKWARD 40
 #define MOTOR_SPEED_AUTONOMOUS_LEFT 100
