@@ -14,16 +14,18 @@ typedef enum {
 //Enums of what messages the mower can recieve and respond to
 typedef enum {
   Hello,
-  Standby,
+  Stop,
   Autonomous,
-  Manual } messageFirstPart_t;
+  Manual,
+  Error_1} messageFirstPart_t;
 
 typedef enum {
   None,
   Forward,
   Backward,
   Left,
-  Right } messageSecondPart_t;
+  Right,
+  Error_2,} messageSecondPart_t;
 
 //Calculated frequency in ms, deciding update frequency during serial communication.
 #define SERIAL_UPDATE_FREQUENCY_MS 50

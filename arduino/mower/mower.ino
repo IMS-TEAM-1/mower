@@ -5,6 +5,7 @@
 #include <Math.h>
 #include "config.h"
 
+float timeAtLastUpdate = 0;
 const char MAX_MESSAGE_LENGTH = 12;
 
 mowerState_t currentState = STANDBY;
@@ -21,6 +22,7 @@ void setup() {
   setupSerial();
   setupEncoderInterrupts();
   setupMotors();
+  currentState = STANDBY;
   //Is this really needed?
   //randomSeed((unsigned long)(lightsensor_12.read() * 123456));
 }
@@ -32,39 +34,129 @@ void loop() {
   switch(currentState){
     case(STANDBY):
       resetMotorValues();
-      stopMotors();
-      _delay(1);
       break;
     case(AUTONOMOUS):
+      //In autonomous mode
       doAutonomousTick();
       break;
     case(MANUAL):
+      //In manual mode
       doManualControlTick();
       break;
-    //Remove when bug-free
     default:
       Serial.println("ERROR IN MAIN LOOP");
-      break;
   }
 }
 void checkSerialData(){
   readSerialData();
-
-  if(messageAcked()){
-    return;
-  }
-  else{
-    Serial.print("fail");
-  }
 }
 
-bool messageAcked(){
-  if(ackMessage(getRecievedSerialDataFirstPart())){
+bool ackReviecedMessage(){
+  if(ackReviecedMessageFirstPart()){
     return true;
   }
   else{
     return false;
   }
+}
+
+bool ackReviecedMessageFirstPart(){
+  //Serial.println(String(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())));
+  switch(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())){
+    case(Manual):
+      currentState = MANUAL;
+      if(ackReviecedMessageSecondPart()){
+        return true;
+      }
+      else{
+        return false;
+      }
+    case(Hello):
+      sendMessageAck("Hello");
+      return true;
+    case(Stop):
+      currentState = STANDBY;
+      sendMessageAck("STANDBY");
+      return true;
+    case(Autonomous):
+      currentState = AUTONOMOUS;
+      sendMessageAck("AUTONOMOUS");
+      return true;
+    case(Error_1):
+      Serial.println("Error_1");
+      return false;
+  }
+}
+
+bool ackReviecedMessageSecondPart(){
+  switch(convertMessageSecondPartToInt(getRecievedSerialDataSecondPart())){
+    case(None):
+      currentDirection = NONE;
+      sendMessageAck("NONE");
+      return true;
+    case(Forward):
+      currentDirection = FORWARD;
+      sendMessageAck("FORWARD");
+      return true;
+    case(Backward):
+      currentDirection = BACKWARD;
+      sendMessageAck("BACKWARD");
+      return true;
+    case(Left):
+      currentDirection = LEFT;
+      sendMessageAck("LEFT");
+      return true;
+    case(Right):
+      currentDirection = RIGHT;
+      sendMessageAck("RIGHT");
+      return true;
+    case(Error_2):
+      Serial.println("Error_1");
+      return false;
+  }
+}
+
+messageFirstPart_t convertMessageFirstPartToInt(String message){
+  String tempMessage = message;
+  tempMessage.trim();
+  
+  if(tempMessage.equals("Hello")){
+    return Hello;
+  }
+  else if(tempMessage.equals("STANDBY")){
+    return Stop;
+  }
+  else if(tempMessage.equals("AUTONOMOUS")){
+    return Autonomous;
+  }
+  else if(tempMessage.equals("MANUAL")){
+    return Manual;
+  }
+  else
+    return Error_1;
+}
+
+messageSecondPart_t convertMessageSecondPartToInt(String message){
+  String tempMessage = message;
+  tempMessage.trim();
+  
+  if(tempMessage.equals("NONE")){
+    return None;
+  }
+  else if(tempMessage.equals("FORWARD")){
+    return Forward;
+  }
+  else if(tempMessage.equals("BACKWARD")){
+    return Backward;
+  }
+  else if(tempMessage.equals("LEFT")){
+    return Left;
+  }
+  else if(tempMessage.equals("RIGHT")){
+    return Right;
+  }
+  else
+    return Error_2;
 }
 
 void doManualControlTick(){
