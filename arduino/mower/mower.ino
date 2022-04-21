@@ -5,14 +5,12 @@
 #include <Math.h>
 #include "config.h"
 
-float timeAtLastUpdate = 0;
-const char MAX_MESSAGE_LENGTH = 12;
-
 mowerState_t currentState = STANDBY;
 direction_t currentDirection = NONE;
 
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
+MeRGBLed rgbled_0(0, 6);
 
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
@@ -29,39 +27,25 @@ void setup() {
 
 //Main loop, seen as the main program of the MCU
 void loop() {
-  checkSerialData();
+  readSerialData();
   
   switch(currentState){
     case(STANDBY):
-      resetMotorValues();
+      activateStandbyLEDs();
+      stopMotors();
       break;
     case(AUTONOMOUS):
-      //In autonomous mode
+      activateAutonomousLEDs();
       doAutonomousTick();
       break;
     case(MANUAL):
-      //In manual mode
+      activateManualLEDs();
       doManualControlTick();
       break;
-    default:
-      Serial.println("ERROR IN MAIN LOOP");
-  }
-}
-void checkSerialData(){
-  readSerialData();
-}
-
-bool ackReviecedMessage(){
-  if(ackReviecedMessageFirstPart()){
-    return true;
-  }
-  else{
-    return false;
   }
 }
 
 bool ackReviecedMessageFirstPart(){
-  //Serial.println(String(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())));
   switch(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())){
     case(Manual):
       currentState = MANUAL;
@@ -83,7 +67,6 @@ bool ackReviecedMessageFirstPart(){
       sendMessageAck("AUTONOMOUS");
       return true;
     case(Error_1):
-      Serial.println("Error_1");
       return false;
   }
 }
@@ -111,25 +94,23 @@ bool ackReviecedMessageSecondPart(){
       sendMessageAck("RIGHT");
       return true;
     case(Error_2):
-      Serial.println("Error_1");
       return false;
   }
 }
 
 messageFirstPart_t convertMessageFirstPartToInt(String message){
-  String tempMessage = message;
-  tempMessage.trim();
+  message.trim();
   
-  if(tempMessage.equals("Hello")){
+  if(message.equals("Hello")){
     return Hello;
   }
-  else if(tempMessage.equals("STANDBY")){
+  else if(message.equals("STANDBY")){
     return Stop;
   }
-  else if(tempMessage.equals("AUTONOMOUS")){
+  else if(message.equals("AUTONOMOUS")){
     return Autonomous;
   }
-  else if(tempMessage.equals("MANUAL")){
+  else if(message.equals("MANUAL")){
     return Manual;
   }
   else
@@ -137,22 +118,21 @@ messageFirstPart_t convertMessageFirstPartToInt(String message){
 }
 
 messageSecondPart_t convertMessageSecondPartToInt(String message){
-  String tempMessage = message;
-  tempMessage.trim();
+  message.trim();
   
-  if(tempMessage.equals("NONE")){
+  if(message.equals("NONE")){
     return None;
   }
-  else if(tempMessage.equals("FORWARD")){
+  else if(message.equals("FORWARD")){
     return Forward;
   }
-  else if(tempMessage.equals("BACKWARD")){
+  else if(message.equals("BACKWARD")){
     return Backward;
   }
-  else if(tempMessage.equals("LEFT")){
+  else if(message.equals("LEFT")){
     return Left;
   }
-  else if(tempMessage.equals("RIGHT")){
+  else if(message.equals("RIGHT")){
     return Right;
   }
   else
@@ -161,5 +141,5 @@ messageSecondPart_t convertMessageSecondPartToInt(String message){
 
 void doManualControlTick(){
   //moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentSpeedLeftMotor, currentAngle),calculateRightMotorSpeed(currentSpeedRightMotor, currentAngle));
-  move(currentDirection, MOTOR_SPEED_MANUAL);
+  move(currentDirection, MOTOR_SPEED_MANUAL * PERCENTAGE_TO_PWM_FACTOR);
 }

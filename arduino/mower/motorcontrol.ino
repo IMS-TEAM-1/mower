@@ -1,7 +1,3 @@
-int currentSpeedLeftMotor = 0;
-int currentSpeedRightMotor = 0;
-int currentAngle = 0;
-
 void setupMotors(){
   //Probably sets up PWM-control for motors
   TCCR1A = _BV(WGM10);
@@ -51,11 +47,11 @@ void move(direction_t direction, int speed)
   
   Encoder_1.setTarPWM(leftSpeed);
   Encoder_2.setTarPWM(rightSpeed);
+
+  _loop();
 }
 
 void moveBySeparateMotorSpeeds(int speedLeftMotor, int speedRightMotor){
-  //Serial.println(speedLeftMotor);
-  //Serial.println(speedRightMotor);
   Encoder_1.setTarPWM(speedRightMotor);
   Encoder_2.setTarPWM(speedLeftMotor);
 }
@@ -70,12 +66,9 @@ direction_t randomLeftOrRight(){
   }
 }
 
-void resetMotorValues(){
+void stopMotors(){
+  move(NONE, 0);
   currentSpeedLeftMotor = 0;
   currentSpeedRightMotor = 0;
   currentAngle = 0;
-}
-
-void stopMotors(){
-  move(NONE, 0);
 }

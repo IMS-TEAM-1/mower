@@ -2,6 +2,8 @@ String recievedMessageFirstPart;
 String recievedMessageSecondPart;
 float timeAtLastSerialUpdate = 0;
 
+const char* delimiter = ":";
+
 void setupSerial(){
   Serial.begin(115200); //Initiate serial communication
 }
@@ -9,66 +11,54 @@ void setupSerial(){
 void readSerialData(){
   if (millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     timeAtLastSerialUpdate = millis();
-    //Serial.println("update");
-    String message;
     
     if(Serial.available() > 0){
-      while (Serial.available() > 0) {
-        //Read the next available byte in the serial receive buffer
-        message += (char)Serial.read();
-      }
-      Serial.flush();
+      String message = readSerialBus();
       
       checkAndSetRecievedMessage(message);
-  
-      if(ackReviecedMessage()){
-        return;
-      }
-      else{
-        Serial.println("fail");
-      }
+
+      ackMessage(message);
     }
     else{
-      currentState = STANDBY;
+      //currentState = STANDBY;
     }
   }
 }
 
+void ackMessage(String message){
+  if(!ackReviecedMessage()){
+    sendMessageNOK(message);
+  }
+}
+
+String readSerialBus(){
+  String message;
+  while (Serial.available() > 0) {
+    message += (char)Serial.read();
+  }
+  return message;
+}
+
 String getRecievedSerialDataFirstPart(){
-  //Serial.println("First part: " + recievedMessageFirstPart);
   return recievedMessageFirstPart;
 }
 
 String getRecievedSerialDataSecondPart(){
-  //Serial.println("First part: " + recievedMessageSecondPart);
   return recievedMessageSecondPart;
 }
 
 void checkAndSetRecievedMessage(String message){
-  char temprecievedMessageFirstPart[message.length()-1];
-  char temprecievedMessageSecondPart[message.length()-1];
+  char* token;
+  char buf[message.length()];
 
-  char tempMessageChar[message.length()];
-  message.toCharArray(tempMessageChar, message.length());
+  message.toCharArray(buf, message.length());
+  token = strtok(buf, delimiter);
   
-  bool colonDetected = false;
-
-  for(int i = 0; i < (message.length() - 1); i++){
-    if(tempMessageChar[i] == ':')
-    {
-      colonDetected = true;
-    }
-    
-    if(!colonDetected){
-      temprecievedMessageFirstPart[i] = tempMessageChar[i];
-    }
-    else{
-      int q = i - sizeof(temprecievedMessageFirstPart);
-      temprecievedMessageSecondPart[q] = tempMessageChar[i];
-    }
+  recievedMessageFirstPart = token;
+  if(token != NULL){
+    token = strtok(NULL, delimiter);
+    recievedMessageSecondPart = token;
   }
-  recievedMessageFirstPart = (String)temprecievedMessageFirstPart;
-  recievedMessageSecondPart = (String)temprecievedMessageSecondPart;
 }
 
 void sendMessageNOK(String message){
@@ -89,4 +79,13 @@ bool recievedCaptureAck(){
   }
   else
     return false;
+}
+
+bool ackReviecedMessage(){
+  if(ackReviecedMessageFirstPart()){
+    return true;
+  }
+  else{
+    return false;
+  }
 }

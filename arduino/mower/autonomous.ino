@@ -1,6 +1,4 @@
 void doAutonomousTick(){
-  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD);
-  
   if(getUltraSonicSensorTriggered()){
       stopMotors();
 
@@ -11,13 +9,13 @@ void doAutonomousTick(){
   }
   if(getLineFollowerTriggered()){
       stopMotors();
-      
-      _delay(0.5);
 
       doReverseProcedure();
   }
+  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   //What is this?
-  _loop();
+  //Serial.println("TEST");
+  //_delay(1);
 }
 
 void doReverseProcedure(){
@@ -31,13 +29,15 @@ void doReverseProcedure(){
 }
 
 void waitForImageCaptured(){
+  stopMotors();
   int timeToCapture = millis() + CAMERA_CAPTURE_TIME;
   while(true){
+    readSerialData();
     if(recievedCaptureAck()){
       break;
     }
-    else if(millis() < (unsigned)timeToCapture)
+    else if(millis() > (unsigned)timeToCapture)
       Serial.println("ERROR IN CAMERA CAPTURE");
-      break;
+      return;
   }
 }
