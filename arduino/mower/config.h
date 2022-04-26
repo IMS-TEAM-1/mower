@@ -1,3 +1,8 @@
+/*
+ * This file contains constants, enums and similar used throughout the project.
+ * It is here most parameters are changed when changed behaviour of the mower is wanted.
+ */
+
 //Typedef enums
 //What state the mower is in right now and what direction the mower should go for when moving
 typedef enum {

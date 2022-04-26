@@ -1,3 +1,7 @@
+/*
+ * Here, some utility functions can be found.
+ */
+
 void _delay(float seconds) {
   if(seconds < 0.0){
     seconds = 0.0;

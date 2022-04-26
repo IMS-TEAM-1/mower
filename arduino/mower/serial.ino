@@ -1,37 +1,56 @@
+//Global variables used to store the latest messages recieved, time when the mower last got updated and how many missed messages we have missed
 String recievedMessageFirstPart;
 String recievedMessageSecondPart;
 long timeAtLastSerialUpdate;
 int numberOfTicksMissed = 0;
 
+//By changing this variable, it changes what character the serial communication sees as a character between two separate words in one string
 const char* delimiter = ":";
 
+//Initiate serial communication
 void setupSerial(){
-  Serial.begin(115200); //Initiate serial communication
+  Serial.begin(115200);
 }
 
+/*
+ * This is the main function of the serial comunication.
+ * When called, it updates what the serial monitor recieves periodically.
+ * The update frequency can be changed in config.h.
+ * 
+ * If alot of messages are missed, then change to stanby state.
+ * This ensures that the mower does not move when it does not recieve any commands.
+ * The amount of max missed messages can be fine tuned in config.h is the mower does not move smooth when manually controlling it.
+ * 
+ * The functions used build on each other, and goes deep into other functions.
+ * Therefore, it may be confusing to read.
+ * It can definatly be developed in a better way, but it works for now according to our designed protocol.
+ */
 void doSerialTick(){
   if(millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     if(numberOfTicksMissed > MAX_ALLOWED_MISSED_SERIAL_TICKS){
       currentState = STANDBY;
+      //Otherwise, the mower get locked
       numberOfTicksMissed = 0;
     }
     else{
       readAndAckSerialData();
+      //Should be removed when in final use, only here for when testing through Arduino monitor
       numberOfTicksMissed = 0;
     }
   }
 }
 
+//As long as there are data available on the serial bus, read and store it, then acknowelge it to the Pi
 void readAndAckSerialData(){
   timeAtLastSerialUpdate = millis();
   
   if(Serial.available() > 0){
     numberOfTicksMissed = 0;
-    
+      
     String message = readSerialBus();
-    
+      
     checkAndSetRecievedMessage(message);
-
+  
     ackMessage(message);
   }
   else{
@@ -39,6 +58,13 @@ void readAndAckSerialData(){
   }
 }
 
+/*
+ * The following function is used to store the separate messages within one string
+ * How this currently works is that it can either recieve one or two messages in one string.
+ * This is done by sending ONE string which contains TWO word by SEPARATING them with the "delimiter" (seen above).
+ * 
+ * Example: Serial.println("MANUAL:FORWARD") -> First word: "MANUAL", second word: "FORWARD"
+ */
 void checkAndSetRecievedMessage(String message){
   char* token;
   char buf[message.length()];
@@ -53,12 +79,14 @@ void checkAndSetRecievedMessage(String message){
   }
 }
 
+//Simply adds ":ack" to a message if sucessful, ":nok" if not
 void ackMessage(String message){
   if(!ackReviecedMessage()){
     sendMessageNOK(message);
   }
 }
 
+//As long as there are data to read, read it. Also, making sure that newline character is found
 String readSerialBus(){
   String message;
   bool EoLFound = false;
@@ -76,10 +104,12 @@ String readSerialBus(){
   }
 }
 
+//Get the first word stored
 String getRecievedSerialDataFirstPart(){
   return recievedMessageFirstPart;
 }
 
+//Get the second word stored
 String getRecievedSerialDataSecondPart(){
   return recievedMessageSecondPart;
 }
@@ -98,6 +128,7 @@ void sendSerialUltraSonicTriggered(){
   Serial.println("CAPTURE");
 }
 
+//Used in autonomous to make sure that the mower has recieved acks on that the picture has been taken
 bool recievedCaptureAck(){
   if(recievedMessageFirstPart == "CAPTURE" && recievedMessageSecondPart == "ack"){
     return true;
@@ -115,6 +146,11 @@ bool ackReviecedMessage(){
   }
 }
 
+/*
+ * The following code is used for decoding and using the messages recieved.
+ * This is done with the help of switch cases and some enums.
+ * Depening on what message is recieved, and if it is the first or second word, the mower should act accordingly.
+ */
 bool ackReviecedMessageFirstPart(){
   switch(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())){
     case(Manual):

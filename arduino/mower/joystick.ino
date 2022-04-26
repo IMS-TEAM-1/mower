@@ -1,3 +1,8 @@
+/*
+ * This file contains functions which can take input from a joystick and covert it to smooth driving.
+ * However, this may not be used sinc the joystick probably will not get implemented.
+ */
+
 int currentSpeedLeftMotor = 0;
 int currentSpeedRightMotor = 0;
 int currentAngle = 0;
@@ -39,6 +44,7 @@ int calculateRightMotorSpeed(double circleLength, double circleAngle){
   }
 }
 
+//Used to get correct math
 int getQuadrantNumberFromAngle(int circleAngle){
   if(circleAngle >= 0 && circleAngle <= 90){ return 1; }
   if(circleAngle > 90 && circleAngle <= 180){ return 4; }

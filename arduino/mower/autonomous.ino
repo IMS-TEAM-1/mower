@@ -1,3 +1,11 @@
+/*
+ * The following "doAutonomousTick()" is the "main-code" for the mower when operating autonomously.
+ * It simply moves forward at all times.
+ * However, if either the ultrasonic sensor or IR-sensors gets triggered, then the mower should act accordingly.
+ * 
+ * This function is called continously when in autonomous-state.
+ */
+
 void doAutonomousTick(){
   if(getUltraSonicSensorTriggered()){
       stopMotors();
@@ -19,6 +27,7 @@ void doAutonomousTick(){
   //_delay(1);
 }
 
+//This function simply does a simple reversing manuever
 void doReverseProcedure(){
   move(BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
   _delay(1);
@@ -29,6 +38,12 @@ void doReverseProcedure(){
   stopMotors();
 }
 
+
+/*
+ * This function is called when the Arduino should wait for the Pi to take the picture through the camera.
+ * The mower stand still and waits for an acknowledgement.
+ * After a set time-out value, the mower continoues anyway.
+ */
 void waitForImageCaptured(){
   stopMotors();
   bool doLoop = true;
