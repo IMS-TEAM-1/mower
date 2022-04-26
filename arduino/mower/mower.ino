@@ -5,14 +5,25 @@
 #include <Math.h>
 #include "config.h"
 
-float timeAtLastUpdate = 0;
-const char MAX_MESSAGE_LENGTH = 12;
-
+/*
+ * Following are variables used as global variables which determine what the mower shoud do.
+ * "currentState" and "currentDirection" is the primary source for the mower for what it should do when acting or moving.
+ * These are defined by the typedef enum "mowerState_t" and "direction_t" which have various parameters.
+ * 
+ * Example: currentState = STANDBY; - this makes sure that the mower changes to standby-mode in the global loop-function.
+ * 
+ * Example: currentDirection = NONE; - this makes sure that the mower does not move in any direction, even if it is told to do so with a ceratain speed.
+ * 
+ * 
+ * Beneath are decalarations on where the sensors, the motors and the RBG-LEDs are connected in the Arduino.
+ * How to use can be found in repective .ino file.
+ */
 mowerState_t currentState = STANDBY;
 direction_t currentDirection = NONE;
 
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
+MeRGBLed rgbled_0(0, 12);
 
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
@@ -23,143 +34,37 @@ void setup() {
   setupEncoderInterrupts();
   setupMotors();
   currentState = STANDBY;
+  rgbled_0.setpin(44);
   //Is this really needed?
   //randomSeed((unsigned long)(lightsensor_12.read() * 123456));
 }
 
-//Main loop, seen as the main program of the MCU
+/*
+ * The following "loop()" is the main program of the Arduino.
+ * 
+ * It initializes by performing a serial tick, meaning that it will firstly check whether the Arduino should update based on timed
+ * update-times but secondly read the data and store it for further use, seen in serial.ino
+ * 
+ * The loop is designed to be structured in various self-explanatory states such as: standby, autonomous and manual.
+ * The standby-mode is simply a state where the mower is stationary and simply awaits orders.
+ * Autonomous is the self-driving function and the code for that can be found in autonomous.ino.
+ * Manual is the state where you MANUALLY control the mower via bluetooth.
+ */
 void loop() {
-  checkSerialData();
+  doSerialTick();
   
   switch(currentState){
     case(STANDBY):
-      resetMotorValues();
+      activateStandbyLEDs();
+      stopMotors();
       break;
     case(AUTONOMOUS):
-      //In autonomous mode
+      activateAutonomousLEDs();
       doAutonomousTick();
       break;
     case(MANUAL):
-      //In manual mode
+      deactivateLEDs();
       doManualControlTick();
       break;
-    default:
-      Serial.println("ERROR IN MAIN LOOP");
   }
-}
-void checkSerialData(){
-  readSerialData();
-}
-
-bool ackReviecedMessage(){
-  if(ackReviecedMessageFirstPart()){
-    return true;
-  }
-  else{
-    return false;
-  }
-}
-
-bool ackReviecedMessageFirstPart(){
-  //Serial.println(String(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())));
-  switch(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())){
-    case(Manual):
-      currentState = MANUAL;
-      if(ackReviecedMessageSecondPart()){
-        return true;
-      }
-      else{
-        return false;
-      }
-    case(Hello):
-      sendMessageAck("Hello");
-      return true;
-    case(Stop):
-      currentState = STANDBY;
-      sendMessageAck("STANDBY");
-      return true;
-    case(Autonomous):
-      currentState = AUTONOMOUS;
-      sendMessageAck("AUTONOMOUS");
-      return true;
-    case(Error_1):
-      Serial.println("Error_1");
-      return false;
-  }
-}
-
-bool ackReviecedMessageSecondPart(){
-  switch(convertMessageSecondPartToInt(getRecievedSerialDataSecondPart())){
-    case(None):
-      currentDirection = NONE;
-      sendMessageAck("NONE");
-      return true;
-    case(Forward):
-      currentDirection = FORWARD;
-      sendMessageAck("FORWARD");
-      return true;
-    case(Backward):
-      currentDirection = BACKWARD;
-      sendMessageAck("BACKWARD");
-      return true;
-    case(Left):
-      currentDirection = LEFT;
-      sendMessageAck("LEFT");
-      return true;
-    case(Right):
-      currentDirection = RIGHT;
-      sendMessageAck("RIGHT");
-      return true;
-    case(Error_2):
-      Serial.println("Error_1");
-      return false;
-  }
-}
-
-messageFirstPart_t convertMessageFirstPartToInt(String message){
-  String tempMessage = message;
-  tempMessage.trim();
-  
-  if(tempMessage.equals("Hello")){
-    return Hello;
-  }
-  else if(tempMessage.equals("STANDBY")){
-    return Stop;
-  }
-  else if(tempMessage.equals("AUTONOMOUS")){
-    return Autonomous;
-  }
-  else if(tempMessage.equals("MANUAL")){
-    return Manual;
-  }
-  else
-    return Error_1;
-}
-
-messageSecondPart_t convertMessageSecondPartToInt(String message){
-  String tempMessage = message;
-  tempMessage.trim();
-  
-  if(tempMessage.equals("NONE")){
-    return None;
-  }
-  else if(tempMessage.equals("FORWARD")){
-    return Forward;
-  }
-  else if(tempMessage.equals("BACKWARD")){
-    return Backward;
-  }
-  else if(tempMessage.equals("LEFT")){
-    return Left;
-  }
-  else if(tempMessage.equals("RIGHT")){
-    return Right;
-  }
-  else
-    return Error_2;
-}
-
-void doManualControlTick(){
-  //moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentSpeedLeftMotor, currentAngle),calculateRightMotorSpeed(currentSpeedRightMotor, currentAngle));
-  move(currentDirection, MOTOR_SPEED_MANUAL);
 }
