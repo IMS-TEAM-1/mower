@@ -6,6 +6,11 @@ void setupMotors(){
   TCCR2B = _BV(CS21);
 }
 
+void doManualControlTick(){
+  //moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentSpeedLeftMotor, currentAngle),calculateRightMotorSpeed(currentSpeedRightMotor, currentAngle));
+  move(currentDirection, MOTOR_SPEED_MANUAL * PERCENTAGE_TO_PWM_FACTOR);
+}
+
 void isr_process_encoder1(void)
 {
   if(digitalRead(Encoder_1.getPortB()) == 0){
@@ -29,15 +34,19 @@ void move(direction_t direction, int speed)
   int rightSpeed = 0;
   
   if(direction == FORWARD){
+    activateManualForwardLEDs();
     leftSpeed = -speed;
     rightSpeed = speed;
   }else if(direction == BACKWARD){
+    activateManualBackwardLEDs();
     leftSpeed = speed;
     rightSpeed = -speed;
   }else if(direction == LEFT){
+    activateManualLeftLEDs();
     leftSpeed = -speed;
     rightSpeed = -speed;
   }else if(direction == RIGHT){
+    activateManualRightLEDs();
     leftSpeed = speed;
     rightSpeed = speed;
   }else if(direction == NONE) {
@@ -49,6 +58,8 @@ void move(direction_t direction, int speed)
   Encoder_2.setTarPWM(rightSpeed);
 
   _loop();
+
+  currentDirection = NONE;
 }
 
 void moveBySeparateMotorSpeeds(int speedLeftMotor, int speedRightMotor){
@@ -71,4 +82,5 @@ void stopMotors(){
   currentSpeedLeftMotor = 0;
   currentSpeedRightMotor = 0;
   currentAngle = 0;
+  currentDirection = NONE;
 }

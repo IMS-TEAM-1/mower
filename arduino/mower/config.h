@@ -27,8 +27,9 @@ typedef enum {
   Right,
   Error_2,} messageSecondPart_t;
 
-//Calculated frequency in ms, deciding update frequency during serial communication.
+//Serial defines
 #define SERIAL_UPDATE_FREQUENCY_MS 50
+#define MAX_ALLOWED_MISSED_SERIAL_TICKS 10
 
 //Sensor ports
 #define ULTRASONIC_SENSOR_PORT 10
