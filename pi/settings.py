@@ -52,8 +52,8 @@ CAMERA_SCREENSHOT_RESOLUTION = (1024, 768)
 # BACKEND               #
 #########################
 #########################
-BACKEND_URI  = 'peen-vagene.com'
-BACKEND_PORT = 69
+BACKEND_URI  = '13.49.61.28'
+BACKEND_PORT = 8080
 
 
 #########################

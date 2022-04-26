@@ -27,16 +27,20 @@ if __name__ == '__main__':
 
     # state = MANUAL
 
+    # Backend test
+
+    backend.get_user_json()
+
     # Start communicating
-    ard.hello()
+    # ard.hello()
 
-    while True:
+    # while True:
 
-        ard.post()
-        sleep(1)
-        #backendPost()
-        #backendRequest()
-        #arduinoRequest()
-        #bluetoothTick()
+    #     ard.post()
+    #     sleep(1)
+    #     #backendPost()
+    #     #backendRequest()
+    #     #arduinoRequest()
+    #     #bluetoothTick()
 
 
