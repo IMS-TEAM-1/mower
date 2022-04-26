@@ -1,0 +1,64 @@
+"""
+Constants to be used for the RPiZ program.
+"""
+import os
+
+# This is a define that will enable testing to be done
+# on computers that are NOT raspberry pis
+PIZERO  = False
+ON_UNIX = os.name == 'posix'
+
+
+#########################
+#########################
+# RASPBERRY PY          #
+#########################
+#########################
+RPI_UPDATE_FREQUENCY_HERTZ = 20
+
+
+
+
+#########################
+#########################
+# ARDUINO               #
+#########################
+#########################
+ARDUINO_SERIAL_BAUD = 115200
+
+ARDUINO_SERIAL_DEV  = '/dev/ttyUSB0' if ON_UNIX \
+                else 'c:\\loldunno-this-is-windows'
+
+ARDUINO_SERIAL_TIMEOUT = 1
+
+
+
+
+#########################
+#########################
+# CAMERA                #
+#########################
+#########################
+CAMERA_DIRECTORY = '/home/pi/pics/' if PIZERO  \
+              else '~/pics/'        if ON_UNIX \
+              else 'c:\\pr0n\\'
+
+CAMERA_SCREENSHOT_RESOLUTION = (1024, 768)
+
+
+
+#########################
+#########################
+# BACKEND               #
+#########################
+#########################
+BACKEND_URI  = 'peen-vagene.com'
+BACKEND_PORT = 69
+
+
+#########################
+#########################
+# MOBILE                #
+#########################
+#########################
+MOBILE_BLUETOOTH_DUMMY = 'some configuration loldunno'

@@ -1,75 +1,42 @@
-import serial
+
 from time import sleep
-from picamera import PiCamera
 
-def sendMessage(msg):
-    ser.write((msg + "\n").encode('ascii'))
+from arduino import Arduino
+from camera  import Camera
+from backend import Backend
 
-def recieveMessage():
-    line = ser.readline()
-    line = str(line.decode('utf-8').strip())
-    return line
-    
-def capturePicture():
-    if recieveMessage == 'CAPTURE':
-        camera = PiCamera()
-        camera.resolution = (1024, 768)
-        sleep(2)
-        camera.capture('/home/pi/image.jpg')
-        camera.close()
-        print("picture taken")
-        
-def arduinoHello():
-    sendMessage('Hello')
-    while recieveMessage() != 'Hello:ack':
-        print("arduinoHello(): not ready")
-        sendMessage('Hello')
-        sleep(2)
-    
-    print("arduinoHello(): ready")
-      
-def arduinoRdy():
-    sendMessage('rdy')
-    while recieveMessage() != 'rdy:ack':
-        print("arduinoRdy(): not ready")
-        sendMessage('rdy')
-        sleep(2)
-    
-    print("arduinoRdy(): ready")
+import settings as s
 
-def backendHello():
-    print("backendHello(): not implemented")
-    
-def backendRdy():
-    print("backendRdy(): not implemented")
-    
-def backendPost():
-    print("backendPost(): not implemented")
-    
-def backendRequest():
-    print("backendRequest(): not implemented")
-    
-def arduinoPost():
-    #print("arduinoPost(): not implemented")
-    keyboard = input("write your command: ")
-    sendMessage(keyboard)
-    sleep(0.1)
-    print(recieveMessage())
-    
-    
-    
+
+
+
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout = 1)
-    ser.reset_input_buffer()
-    arduinoHello()
-    #arduinoRdy()
 
+    print('main runs')
+
+    # Create instances
+    ard     = Arduino(s.ARDUINO_SERIAL_DEV,
+                      s.ARDUINO_SERIAL_BAUD,
+                      s.ARDUINO_SERIAL_TIMEOUT)
+
+    cam     = Camera(s.CAMERA_SCREENSHOT_RESOLUTION,
+                     s.CAMERA_DIRECTORY)
+
+    backend = Backend(s.BACKEND_URI,
+                      s.BACKEND_PORT)
+
+    # state = MANUAL
+
+    # Start communicating
+    ard.hello()
 
     while True:
-        
+
+        ard.post()
+        sleep(1)
         #backendPost()
         #backendRequest()
-        arduinoPost()
         #arduinoRequest()
         #bluetoothTick()
-        sleep(1)
+
+
