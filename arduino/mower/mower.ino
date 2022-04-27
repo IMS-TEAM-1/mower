@@ -24,6 +24,7 @@ direction_t currentDirection = NONE;
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
 MeRGBLed rgbled_0(0, 12);
+MeGyro gyro(9, 0x69);
 
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
@@ -35,6 +36,7 @@ void setup() {
   setupMotors();
   currentState = STANDBY;
   rgbled_0.setpin(44);
+  gyro.begin();
   //Is this really needed?
   //randomSeed((unsigned long)(lightsensor_12.read() * 123456));
 }
@@ -51,7 +53,7 @@ void setup() {
  * Manual is the state where you MANUALLY control the mower via bluetooth.
  */
 void loop() {
-  doSerialTick();
+  doSerialTick(true);
   
   switch(currentState){
     case(STANDBY):
@@ -64,7 +66,11 @@ void loop() {
       break;
     case(MANUAL):
       deactivateLEDs();
+      //gyroPrintValues();
+      //printEncoderPulseValues();
       doManualControlTick();
       break;
   }
+
+  clearMessages();
 }

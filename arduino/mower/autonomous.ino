@@ -55,11 +55,12 @@ void waitForImageCaptured(){
   
   while(doLoop){
     stopMotors();
-    doSerialTick();
+    doSerialTick(false);
     if(recievedCaptureAck()){
       doLoop = false;
     }
     else if(millis() > timeToCapture) {
+      Serial.println(getRecievedSerialDataFirstPart());
       Serial.println("ERROR IN CAMERA CAPTURE");
       doLoop = false;
     }

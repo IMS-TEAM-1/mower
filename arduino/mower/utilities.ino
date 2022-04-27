@@ -13,6 +13,7 @@ void _delay(float seconds) {
 void _loop() {
   Encoder_1.loop();
   Encoder_2.loop();
+  gyro.update();
 }
 
 void moveForAmountOfTime(int ms){

@@ -1,4 +1,5 @@
 //Global variables used to store the latest messages recieved, time when the mower last got updated and how many missed messages we have missed
+String recievedMessage;
 String recievedMessageFirstPart;
 String recievedMessageSecondPart;
 long timeAtLastSerialUpdate;
@@ -25,7 +26,7 @@ void setupSerial(){
  * Therefore, it may be confusing to read.
  * It can definatly be developed in a better way, but it works for now according to our designed protocol.
  */
-void doSerialTick(){
+void doSerialTick(bool ack){
   if(millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     if(numberOfTicksMissed > MAX_ALLOWED_MISSED_SERIAL_TICKS){
       currentState = STANDBY;
@@ -35,7 +36,8 @@ void doSerialTick(){
     else{
       timeAtLastSerialUpdate = millis();
       
-      readAndAckSerialData();
+      readSerialData(ack);
+
       //Should be removed when in final use, only here for when testing through Arduino monitor
       numberOfTicksMissed = 0;
     }
@@ -43,15 +45,20 @@ void doSerialTick(){
 }
 
 //As long as there are data available on the serial bus, read and store it, then acknowelge it to the Pi
-void readAndAckSerialData(){
+void readSerialData(bool ack){
   if(Serial.available() > 0){
     numberOfTicksMissed = 0;
     
-    String message = readSerialBus();
-      
-    checkAndSetRecievedMessage(message);
-  
-    ackMessage(message);
+    recievedMessage = readSerialBus();
+
+    checkAndSetRecievedMessage(recievedMessage);
+
+    if(ack){
+      ackMessage(recievedMessage);
+    }
+
+    Serial.flush();
+    
   }
   else{
     numberOfTicksMissed++;
@@ -126,6 +133,12 @@ void sendMessageAck(String message){
 
 void sendSerialUltraSonicTriggered(){
   Serial.println("CAPTURE");
+}
+
+void clearMessages(){
+  recievedMessage = "";
+  recievedMessageFirstPart = "";
+  recievedMessageSecondPart = "";
 }
 
 //Used in autonomous to make sure that the mower has recieved acks on that the picture has been taken
