@@ -59,7 +59,7 @@ void loop() {
       stopMotors();
       break;
     case(AUTONOMOUS):
-      activateAutonomousLEDs();
+      activateAutonomousForwardLEDs();
       doAutonomousTick();
       break;
     case(MANUAL):

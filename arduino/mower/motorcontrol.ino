@@ -90,6 +90,7 @@ direction_t randomLeftOrRight(){
 
 //Simply make the mower stop OBS: may have to used continously to actually make the mower stop
 void stopMotors(){
+  resetStateLEDs();
   move(NONE, 0);
   currentSpeedLeftMotor = 0;
   currentSpeedRightMotor = 0;

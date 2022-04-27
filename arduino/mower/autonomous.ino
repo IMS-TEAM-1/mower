@@ -7,6 +7,7 @@
  */
 
 void doAutonomousTick(){
+  
   if(getUltraSonicSensorTriggered()){
       stopMotors();
 
@@ -23,19 +24,22 @@ void doAutonomousTick(){
   }
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   //What is this?
-  //Serial.println("TEST");
   //_delay(1);
 }
 
 //This function simply does a simple reversing manuever
 void doReverseProcedure(){
+  activateAutonomousLEDs();
   move(BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
   _delay(1);
   stopMotors();
 
+  activateAutonomousLEDs();
+  
   move(randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR);
   _delay(random(1, 3));
   stopMotors();
+  activateAutonomousLEDs();
 }
 
 

@@ -33,6 +33,8 @@ void doSerialTick(){
       numberOfTicksMissed = 0;
     }
     else{
+      timeAtLastSerialUpdate = millis();
+      
       readAndAckSerialData();
       //Should be removed when in final use, only here for when testing through Arduino monitor
       numberOfTicksMissed = 0;
@@ -42,11 +44,9 @@ void doSerialTick(){
 
 //As long as there are data available on the serial bus, read and store it, then acknowelge it to the Pi
 void readAndAckSerialData(){
-  timeAtLastSerialUpdate = millis();
-  
   if(Serial.available() > 0){
     numberOfTicksMissed = 0;
-      
+    
     String message = readSerialBus();
       
     checkAndSetRecievedMessage(message);
@@ -130,7 +130,7 @@ void sendSerialUltraSonicTriggered(){
 
 //Used in autonomous to make sure that the mower has recieved acks on that the picture has been taken
 bool recievedCaptureAck(){
-  if(recievedMessageFirstPart == "CAPTURE" && recievedMessageSecondPart == "ack"){
+  if(getRecievedSerialDataFirstPart().equals("CAPTURE") && getRecievedSerialDataSecondPart().equals("ack")){
     return true;
   }
   else
@@ -154,8 +154,8 @@ bool ackReviecedMessage(){
 bool ackReviecedMessageFirstPart(){
   switch(convertMessageFirstPartToInt(getRecievedSerialDataFirstPart())){
     case(Manual):
-      currentState = MANUAL;
       if(ackReviecedMessageSecondPart()){
+        currentState = MANUAL;
         return true;
       }
       else{
