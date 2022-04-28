@@ -38,13 +38,13 @@ if __name__ == '__main__':
     
     
 
-    # Start communicating
+    # Start communicating                   
     # ard.hello()
 
     while True:
         #print(ard.receive_message())
         if ard.receive_message() == "CAPTURE":
-            Camera.open_sleep_capture_close(s.CAMERA_SCREENSHOT_RESOLUTION, s.CAMERA_DIRECTORY, "img1")
+            Camera.open_sleep_capture_close(s.CAMERA_SCREENSHOT_RESOLUTION, s.CAMERA_DIRECTORY)
             #cam.capturePicture()
             ard.send_message("CAPTURE:ack")
             print("CAPTURE:ack sent")

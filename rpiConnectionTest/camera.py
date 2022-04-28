@@ -58,7 +58,7 @@ class Camera:
         camera.close
 
     @staticmethod
-    def open_sleep_capture_close(res, directory, img_name):
+    def open_sleep_capture_close(res, directory):
         """
         Should run the constructor, take a picture and close
         the camera when done.
@@ -68,7 +68,7 @@ class Camera:
             cam.resolution = res
             sleep(2)
             #path = os.path.join(directory, img_name)
-            cam.capture('/home/pi/image.jpg')
+            cam.capture('/home/pi/pics/image.jpg')
             cam.close()
         else:
             sleep(2)

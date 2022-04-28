@@ -36,19 +36,6 @@ class Arduino:
             got_ack = msg == 'Hello:ack'
         print("arduinoHello(): ready")
 
-
-    def ready(self):
-        """
-        Ready for what, precisely?
-        """
-        self.send_message('rdy')
-        while self.receive_message() != 'rdy:ack':
-            print("ready(): not ready")
-            self.send_message('rdy')
-            sleep(2)
-        print("arduinoRdy(): ready")
-
-
     def post(self):
         """
         Imma put you in muh mailbox.
@@ -73,4 +60,5 @@ class Arduino:
         """
         line = self.ser.readline()
         line = str(line.decode('utf-8').strip())
+        self.ser.reset_input_buffer()
         return line

@@ -65,7 +65,32 @@ class Backend:
         """
         print("backend_request(): not implemented")
         
+    def post_base64_picture(self):
+        """
+        Post picture in base64 to backend
+        """
+        print("Not implemented")
+        
+    def post_arduino_location(self):
+        """
+        Post location of mower to backend
+        """
+        print("Not implemented")
+        
+    def decode_picture_to_base64(self):
+        """
+        Convert picture to base64
+        """
+        with open(IMAGE_PATH,"rb") as image_file:
+            data = base64.b64encode(image_file.read())
+            #print(data)
+        return data.decode('utf-8')
+        
+        
     def request_test_hello_world(self):
+        """
+        Test to get connection to backend
+        """
         get_uri  = self.base_uri
         print(f'\tgetting request: {get_uri}')
         response = requests.get(get_uri).json()
