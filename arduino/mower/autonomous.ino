@@ -7,7 +7,6 @@
  */
 
 void doAutonomousTick(){
-  
   if(getUltraSonicSensorTriggered()){
       stopMotors();
 
@@ -23,6 +22,7 @@ void doAutonomousTick(){
       doReverseProcedure();
   }
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  activateAutonomousForwardLEDs();
   //What is this?
   //_delay(1);
 }

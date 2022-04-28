@@ -20,24 +20,24 @@ void doManualControlTick(){
  */
 void move(direction_t direction, int speed)
 {
-  int leftSpeed = 0;
-  int rightSpeed = 0;
+  float leftSpeed = 0;
+  float rightSpeed = 0;
   
   if(direction == FORWARD){
     activateManualForwardLEDs();
-    leftSpeed = -speed;
+    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = speed;
   }else if(direction == BACKWARD){
     activateManualBackwardLEDs();
-    leftSpeed = speed;
+    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = -speed;
   }else if(direction == LEFT){
     activateManualLeftLEDs();
-    leftSpeed = -speed;
+    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = -speed;
   }else if(direction == RIGHT){
     activateManualRightLEDs();
-    leftSpeed = speed;
+    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = speed;
   }else if(direction == NONE) {
     leftSpeed = 0;

@@ -61,8 +61,8 @@ void loop() {
       stopMotors();
       break;
     case(AUTONOMOUS):
-      activateAutonomousForwardLEDs();
       doAutonomousTick();
+      //testSpeedOfRobot();
       break;
     case(MANUAL):
       deactivateLEDs();

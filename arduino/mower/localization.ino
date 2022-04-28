@@ -1,6 +1,46 @@
 int coordinateX = 0;
 int coordinateY = 0;
 
+bool TESTfirstTapeFound = false;
+bool TESTsecondTapeFound = false;
+
+void testSpeedOfRobot(){
+  if(!getLineFollowerTriggered()){
+    Serial.println("Moving until tape found");
+
+    move(FORWARD, MAX_MOTOR_SPEED);
+  }
+  else{
+    TESTfirstTapeFound = true;
+    Serial.println("Tape found, stopping in 3 seconds");
+
+    stopMotors();
+    resetEncoderValues();
+
+    _delay(3);
+
+    move(FORWARD, MAX_MOTOR_SPEED);
+    _delay(0.5);
+    
+    while(!TESTsecondTapeFound){
+      move(FORWARD, MAX_MOTOR_SPEED);
+      if(getLineFollowerTriggered()){
+        TESTsecondTapeFound = true; 
+      }
+    }
+
+    printEncoderPulseValues();
+
+    Serial.println("\nDistance travelled: ");
+
+    Serial.println(getDistanceTravelled());
+    
+    while(true){
+      stopMotors();
+    }
+  }
+}
+
 float gyroGetX(){
   return gyro.getAngle(1);
 }
@@ -33,4 +73,17 @@ void setCoordinateX(int value){
 
 void setCoordinateY(int value){
   coordinateY = value;
+}
+
+void resetCoorinateX(){
+  coordinateX = 0;
+}
+
+void resetCoorinateY(){
+  coordinateY = 0;
+}
+
+void resetCoordinates(){
+  resetCoorinateX();
+  resetCoorinateY();
 }

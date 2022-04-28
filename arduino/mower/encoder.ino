@@ -35,3 +35,14 @@ void printEncoderPulseValues(){
   Serial.println("Encoder 2: ");
   Serial.println(getEncoder2Pulses());
 }
+
+void resetEncoderValues(){
+  Encoder_1.setPulsePos(0);
+  Encoder_2.setPulsePos(0);
+}
+
+float getDistanceTravelled(){
+  float combineBothEncoderValues = abs(getEncoder1Pulses()) + getEncoder2Pulses();
+  float calculateEncoderAverage = combineBothEncoderValues * 0.5;
+  return (calculateEncoderAverage * MILLIMETER_PER_ENCOER_PULSE);
+}
