@@ -5,28 +5,50 @@
  * 
  * This function is called continously when in autonomous-state.
  */
+long timeForNextLocationTick = 0;
 
 void doAutonomousTick(){
+  //If any of the sensors are triggered, stop, and do the appropiate procedure
   if(getUltraSonicSensorTriggered()){
-      stopMotors();
-
-      sendSerialUltraSonicTriggered();
-      
-      waitForImageCaptured();
-
-      doReverseProcedure();
+    doAutonomousUltraSonicProcedure();
   }
   if(getLineFollowerTriggered()){
-      stopMotors();
-
-      doReverseProcedure();
+    doAutonomousLineFollowerProcedure();
   }
-  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+
+  //If we should send our location to the Pi, do that
+  doLocalizationTick();  
+
+  //Else, always move forward
   activateAutonomousForwardLEDs();
-  //What is this?
-  //_delay(1);
+  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 }
 
+void doLocalizationTick(){
+  if(millis() > timeForNextLocationTick){
+    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME;
+
+    calculateAndUpdateXAndYCoordinates();
+
+    sendSerialCoordinates();
+  }
+}
+
+void doAutonomousLineFollowerProcedure(){
+  stopMotors();
+
+  doReverseProcedure();
+}
+
+void doAutonomousUltraSonicProcedure(){
+  stopMotors();
+
+  sendSerialUltraSonicTriggered();
+  
+  waitForImageCaptured();
+
+  doReverseProcedure();
+}
 //This function simply does a simple reversing manuever
 void doReverseProcedure(){
   activateAutonomousLEDs();

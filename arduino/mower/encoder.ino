@@ -41,8 +41,10 @@ void resetEncoderValues(){
   Encoder_2.setPulsePos(0);
 }
 
+long getEncoderAverage(){
+  return ( (abs(getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5);
+}
+
 float getDistanceTravelled(){
-  float combineBothEncoderValues = abs(getEncoder1Pulses()) + getEncoder2Pulses();
-  float calculateEncoderAverage = combineBothEncoderValues * 0.5;
-  return (calculateEncoderAverage * MILLIMETER_PER_ENCOER_PULSE);
+  return (getEncoderAverage() * MILLIMETER_PER_ENCOER_PULSE);
 }

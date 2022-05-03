@@ -52,6 +52,149 @@ void move(direction_t direction, int speed)
   currentDirection = NONE;
 }
 
+void doRotationTest(){
+  rotateByDegrees(90, LEFT, MAX_MOTOR_SPEED);
+
+  _delay(3);
+
+  rotateByDegrees(180, RIGHT, MAX_MOTOR_SPEED);
+
+  _delay(3);
+
+  rotateByDegrees(270, RIGHT, MAX_MOTOR_SPEED);
+
+  _delay(3);
+
+  rotateByDegrees(360, LEFT, MAX_MOTOR_SPEED);
+}
+
+void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int motorSpeed) {
+  if(rotateLeftOrRight == LEFT){
+    if(calculateFullCirclesNeeded(degreesToRotate) > 0){
+      rotateFullCircles(calculateFullCirclesNeeded(degreesToRotate), rotateLeftOrRight, motorSpeed);
+    }
+    
+    int calcDegreesToRotate = getGyroZ() - (degreesToRotate % 360);
+
+    if(calcDegreesToRotate >= -180){
+      while(getGyroZ() > calcDegreesToRotate){
+        move(LEFT, motorSpeed);
+      }
+    }
+    else{
+      int degreesDelta = abs(calcDegreesToRotate) % 180;
+      int degreeToRotateTo = (180 - degreesDelta) * 1;
+      
+      bool wasInLowerValueHalf = false;
+      bool wentOverHighestPeak = false;
+      
+      while(!wentOverHighestPeak){
+        move(LEFT, motorSpeed);
+        if(getGyroZ() >= -180 && getGyroZ() < 90){
+          wasInLowerValueHalf = true;
+        }
+        if(wasInLowerValueHalf && getGyroZ() > 90){
+          wentOverHighestPeak = true;
+        }
+      }
+      while(getGyroZ() > degreeToRotateTo){
+        move(LEFT, motorSpeed);
+      }
+    }
+  }
+  
+  else if(rotateLeftOrRight == RIGHT){
+    if(calculateFullCirclesNeeded(degreesToRotate) > 0){
+      rotateFullCircles(calculateFullCirclesNeeded(degreesToRotate), rotateLeftOrRight, motorSpeed);
+    }
+
+    int calcDegreesToRotate = getGyroZ() + (degreesToRotate % 360);
+
+    if(calcDegreesToRotate <= 180){
+      while(getGyroZ() < calcDegreesToRotate){
+        move(RIGHT, motorSpeed);
+      }
+    }
+    else{
+      int degreesDelta = abs(calcDegreesToRotate) % 180;
+      int degreeToRotateTo = (180 - degreesDelta) * -1;
+      
+      bool wasInUpperValueHalf = false;
+      bool wentOverHighestPeak = false;
+      
+      while(!wentOverHighestPeak){
+        move(RIGHT, motorSpeed);
+        if(getGyroZ() > 0 && getGyroZ() <= 180){
+          wasInUpperValueHalf = true;
+        }
+        if(wasInUpperValueHalf && getGyroZ() < -90){
+          wentOverHighestPeak = true;
+        }
+      }
+      while(getGyroZ() < degreeToRotateTo){
+        move(RIGHT, motorSpeed);
+      }
+    }
+  }
+  else{
+    Serial.println("Recieved wrong parameter in: rotateByDegrees");
+  }
+  stopMotors();
+}
+
+void rotateFullCircles(int amountOfCircles, direction_t rotateLeftOrRight, int motorSpeed){
+  for(int i = 0; i < amountOfCircles; i++){
+    int angleNow = getGyroZ();
+    
+    bool beenInFirstQuadrant = false;
+    bool beenInSecondQuadrant = false;
+    bool beenInThirdQuadrant = false;
+    bool beenInFourthQuadrant = false;
+    
+    bool circleRotated = false;
+
+    //Rotate until first half of the circle is completed
+    while(!circleRotated){
+      if(getGyroZ() <= 0 && getGyroZ() > -90){
+        beenInSecondQuadrant = true;
+      }
+      else if(getGyroZ() <= -90 && getGyroZ() > -180){
+        beenInThirdQuadrant = true;
+      }
+      else if(getGyroZ() <= 180 && getGyroZ() > 90){
+        beenInFourthQuadrant = true;
+      }
+      else if(getGyroZ() <= 90 && getGyroZ() > 0){
+        beenInFirstQuadrant = true;
+      }
+
+      if(beenInFirstQuadrant && beenInSecondQuadrant && beenInThirdQuadrant && beenInFourthQuadrant){
+        if(rotateLeftOrRight == LEFT){
+          while(getGyroZ() > angleNow){
+            //Serial.println(getGyroZ());
+            move(rotateLeftOrRight, motorSpeed);
+          }
+          circleRotated = true;
+        }
+        else if(rotateLeftOrRight == RIGHT){
+          while(getGyroZ() < angleNow){
+            //Serial.println(getGyroZ());
+            move(rotateLeftOrRight, motorSpeed);
+          }
+          circleRotated = true;
+        }
+      }
+
+      move(rotateLeftOrRight, motorSpeed);
+      //Serial.println(getGyroZ());
+    }
+  }
+}
+
+int calculateFullCirclesNeeded(int degreesToRotate){
+  return abs(degreesToRotate)/360;
+}
+
 //Used when both motors should move with various speeds, used in conjuction with joystick steering
 void moveBySeparateMotorSpeeds(int speedLeftMotor, int speedRightMotor){
   Encoder_1.setTarPWM(speedRightMotor);

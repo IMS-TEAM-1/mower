@@ -135,6 +135,10 @@ void sendSerialUltraSonicTriggered(){
   Serial.println("CAPTURE");
 }
 
+void sendSerialCoordinates(){
+  Serial.println(String(getCoordinateX()) + ":" + String(getCoordinateY()));
+}
+
 void clearMessages(){
   recievedMessage = "";
   recievedMessageFirstPart = "";

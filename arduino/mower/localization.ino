@@ -13,27 +13,28 @@ void testSpeedOfRobot(){
   else{
     TESTfirstTapeFound = true;
     Serial.println("Tape found, stopping in 3 seconds");
-
     stopMotors();
     resetEncoderValues();
-
     _delay(3);
 
-    move(FORWARD, MAX_MOTOR_SPEED);
-    _delay(0.5);
+    //move(FORWARD, MAX_MOTOR_SPEED);
+    //_delay(0.5);
     
-    while(!TESTsecondTapeFound){
-      move(FORWARD, MAX_MOTOR_SPEED);
-      if(getLineFollowerTriggered()){
-        TESTsecondTapeFound = true; 
-      }
-    }
+//    while(!TESTsecondTapeFound){
+//      move(FORWARD, MAX_MOTOR_SPEED);
+//      if(getLineFollowerTriggered()){
+//        TESTsecondTapeFound = true; 
+//      }
+//    }
 
-    printEncoderPulseValues();
+    driveForwardDistance(1000);
 
-    Serial.println("\nDistance travelled: ");
-
-    Serial.println(getDistanceTravelled());
+    calculateAndUpdateXAndYCoordinates();
+    printCoordinates();
+    
+    //printEncoderPulseValues();
+    //Serial.println("\nDistance travelled: ");
+    //Serial.println(getDistanceTravelled());
     
     while(true){
       stopMotors();
@@ -41,22 +42,47 @@ void testSpeedOfRobot(){
   }
 }
 
-float gyroGetX(){
+void driveForwardDistance(int millimeters){
+  resetEncoderValues();
+
+  while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
+    Serial.println(getGyroZ());
+    move(FORWARD, MAX_MOTOR_SPEED);
+  }
+}
+
+void calculateAndUpdateXAndYCoordinates(){
+  float newXCoordinate = getDistanceTravelled() * cos(getGyroZ() + LOCALIZATION_CIRCLE_ROTATION_OFFSET);
+  float newYCoordinate = getDistanceTravelled() * sin(getGyroZ() + LOCALIZATION_CIRCLE_ROTATION_OFFSET);
+
+  Serial.println("newXCoordinate: " + String(newXCoordinate));
+  Serial.println("newYCoordinate: " + String(newYCoordinate));
+  
+  setCoordinateX(newXCoordinate);
+  setCoordinateY(newYCoordinate);
+}
+
+float getGyroX(){
   return gyro.getAngle(1);
 }
 
-float gyroGetY(){
+float getGyroY(){
   return gyro.getAngle(2);
 }
 
-float gyroGetZ(){
+float getGyroZ(){
   return gyro.getAngle(3);
 }
 
 void gyroPrintValues(){
-  Serial.println("Gyro X: " + String(gyroGetX()));
-  Serial.println("Gyro Y: " + String(gyroGetY()));
-  Serial.println("Gyro Z: " + String(gyroGetZ()) + "\n");
+  Serial.println("Gyro X: " + String(getGyroX()));
+  Serial.println("Gyro Y: " + String(getGyroY()));
+  Serial.println("Gyro Z: " + String(getGyroZ()) + "\n");
+}
+
+void printCoordinates(){
+  Serial.println("Coordinate X: " + String(getCoordinateX()));
+  Serial.println("Coordinate Y: " + String(getCoordinateY()) + "\n");
 }
 
 int getCoordinateX(){
@@ -64,7 +90,7 @@ int getCoordinateX(){
 }
 
 int getCoordinateY(){
-  return coordinateX;
+  return coordinateY;
 }
 
 void setCoordinateX(int value){

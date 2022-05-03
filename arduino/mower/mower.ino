@@ -58,15 +58,28 @@ void loop() {
   switch(currentState){
     case(STANDBY):
       activateStandbyLEDs();
+      //gyroPrintValues();
+
+      rotateByDegrees(359, RIGHT, MAX_MOTOR_SPEED);
+
       stopMotors();
+
+      _delay(3);
+
+      rotateByDegrees(361, RIGHT, MAX_MOTOR_SPEED);
+      //doRotationTest();
+      
+      while(true){
+        stopMotors();
+      }
       break;
     case(AUTONOMOUS):
-      doAutonomousTick();
+      //doAutonomousTick();
       //testSpeedOfRobot();
+      //driveForwardDistance(1000);
       break;
     case(MANUAL):
       deactivateLEDs();
-      //gyroPrintValues();
       //printEncoderPulseValues();
       doManualControlTick();
       break;
