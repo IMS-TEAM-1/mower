@@ -58,20 +58,20 @@ void loop() {
   switch(currentState){
     case(STANDBY):
       activateStandbyLEDs();
-      //gyroPrintValues();
-
-      rotateByDegrees(359, RIGHT, MAX_MOTOR_SPEED);
-
+//      gyroPrintValues();
+//
+//      rotateByDegrees(359, RIGHT, MAX_MOTOR_SPEED);
+//
+//
+//      _delay(3);
+//
+//      rotateByDegrees(361, RIGHT, MAX_MOTOR_SPEED);
+//      doRotationTest();
+//      
+//      while(true){
+//        stopMotors();
+//      }
       stopMotors();
-
-      _delay(3);
-
-      rotateByDegrees(361, RIGHT, MAX_MOTOR_SPEED);
-      //doRotationTest();
-      
-      while(true){
-        stopMotors();
-      }
       break;
     case(AUTONOMOUS):
       //doAutonomousTick();
