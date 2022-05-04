@@ -31,36 +31,43 @@ class Backend:
         print(f'\tgetting request: {get_uri}')
         response = requests.get(get_uri).json()
         print(response)
+        return response
+
+    def get_state(self):
+        """
+        get state from backend
+        """
+        get_uri  = self.base_uri
+        print(f'\tgetting request: {get_uri}')
+        beState = requests.get(get_uri).json()
+        print(beState)
+        return beState
 
 
-    def post_penis_test(self):
+    def decode_picture_to_base64(self):
         """
-        Testing function.
+        Convert picture to base64
         """
-        self.post_penis('8========D')
+        with open('/home/pi/pics/img',"rb") as image_file:
+            data = base64.b64encode(image_file.read())
+            #print(data)
+        return data.decode('utf-8')
 
 
-    def post_penis(self, dickpick):
+    def post_pos(self, position):
         """
-        Sends a string to the backend server.
-        """
-        print("backend_hello(): not implemented")
+        sent position of mower to the backend
 
+        """
+        x = position.split(":")[1]
+        y = position.split(":")[2]
 
-    def ready(self):
-        """
-        Ready for what?
-        """
-        print("backend_ready(): not implemented")
+        data = {'key1': x,
+        'key2': y,
+        'api_paste_format':'python'
+        }
+        
+        get_uri  = self.base_uri + '/mowers/7/locations'
+        requests.post(get_uri, data = data)
 
-    def post(self):
-        """
-        Una-bomber
-        """
-        print("backend_post(): not implemented")
-
-    def request(self):
-        """
-        Gimme shit
-        """
-        print("backend_request(): not implemented")
+    
