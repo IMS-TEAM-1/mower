@@ -4,6 +4,63 @@ int coordinateY = 0;
 bool TESTfirstTapeFound = false;
 bool TESTsecondTapeFound = false;
 
+void doDrivingInASquareTest(){
+  driveForwardDistance(500);
+      
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+  
+
+  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+
+  
+
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+
+  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+
+  
+
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+
+  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+
+  
+
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+  
+  while(true){
+    stopMotors();
+  }
+}
+
 void testSpeedOfRobot(){
   if(!getLineFollowerTriggered()){
     Serial.println("Moving until tape found");
@@ -52,14 +109,21 @@ void driveForwardDistance(int millimeters){
 }
 
 void calculateAndUpdateXAndYCoordinates(){
-  float newXCoordinate = getDistanceTravelled() * cos(getGyroZ() + LOCALIZATION_CIRCLE_ROTATION_OFFSET);
-  float newYCoordinate = getDistanceTravelled() * sin(getGyroZ() + LOCALIZATION_CIRCLE_ROTATION_OFFSET);
-
-  Serial.println("newXCoordinate: " + String(newXCoordinate));
-  Serial.println("newYCoordinate: " + String(newYCoordinate));
+  setGyroValueAtEnd(getGyroZ());
   
+  float calcTemp = ((getAverageGyroValue() + LOCALIZATION_CIRCLE_ROTATION_OFFSET) * DEGREES_TO_RADIAN_FACTOR);
+  
+  float newXCoordinate =  getCoordinateX() + (getDistanceTravelled() * cos(calcTemp) * -1);
+  float newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
+
+  Serial.println("\ncalcTemp: " + String(calcTemp));
+  Serial.println("Cos: " + String(cos(calcTemp)));
+  Serial.println("Sin: " + String(sin(calcTemp)));
+
   setCoordinateX(newXCoordinate);
   setCoordinateY(newYCoordinate);
+
+  resetEncoderValues();
 }
 
 float getGyroX(){

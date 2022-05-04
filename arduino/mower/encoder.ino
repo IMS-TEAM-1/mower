@@ -1,4 +1,7 @@
 //Attaches interupts to the encoders when storing the puleses, may be used for dead reckoning
+float gyroValueAtStart = 0;
+float gyroValueAtEnd = 0;
+
 void setupEncoderInterrupts(){
   attachInterrupt(Encoder_1.getIntNum(), isr_process_encoder1, RISING);
   attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
@@ -39,12 +42,46 @@ void printEncoderPulseValues(){
 void resetEncoderValues(){
   Encoder_1.setPulsePos(0);
   Encoder_2.setPulsePos(0);
+  resetGyroStartAndEnd();
 }
 
-long getEncoderAverage(){
-  return ( (abs(getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5);
+float getEncoderAverage(){
+  return (((-1* getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5);
 }
 
 float getDistanceTravelled(){
   return (getEncoderAverage() * MILLIMETER_PER_ENCOER_PULSE);
+}
+
+void setGyroValueAtStart(float value){
+  gyroValueAtStart = value;
+}
+
+void setGyroValueAtEnd(float value){
+  gyroValueAtEnd = value;
+}
+
+void resetGyroValueAtStart(){
+  setGyroValueAtStart(getGyroZ());
+}
+
+void resetGyroValueAtEnd(){
+  setGyroValueAtEnd(getGyroZ());
+}
+
+void resetGyroStartAndEnd(){
+  resetGyroValueAtStart();
+  resetGyroValueAtEnd();
+}
+
+float getGyroValueAtStart(){
+  return gyroValueAtStart;
+}
+
+float getGyroValueAtEnd(){
+  return gyroValueAtEnd;
+}
+
+float getAverageGyroValue(){
+  return ((getGyroValueAtStart() + getGyroValueAtEnd()) / 2);
 }

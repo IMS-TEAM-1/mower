@@ -7,7 +7,7 @@ void _delay(float seconds) {
     seconds = 0.0;
   }
   long endTime = millis() + seconds * 1000;
-  while(millis() < endTime) _loop();
+  while(millis() < endTime) stopMotors();
 }
 
 void _loop() {

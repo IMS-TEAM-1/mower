@@ -26,7 +26,7 @@ void doAutonomousTick(){
 
 void doLocalizationTick(){
   if(millis() > timeForNextLocationTick){
-    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME;
+    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME_MS;
 
     calculateAndUpdateXAndYCoordinates();
 
@@ -37,12 +37,16 @@ void doLocalizationTick(){
 void doAutonomousLineFollowerProcedure(){
   stopMotors();
 
+  calculateAndUpdateXAndYCoordinates();
+
   doReverseProcedure();
 }
 
 void doAutonomousUltraSonicProcedure(){
   stopMotors();
 
+  calculateAndUpdateXAndYCoordinates();
+  
   sendSerialUltraSonicTriggered();
   
   waitForImageCaptured();
