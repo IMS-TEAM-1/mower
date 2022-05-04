@@ -1,4 +1,5 @@
 
+from posixpath import split
 from time import sleep
 
 from arduino import Arduino
@@ -25,22 +26,34 @@ if __name__ == '__main__':
     backend = Backend(s.BACKEND_URI,
                       s.BACKEND_PORT)
 
-    # state = MANUAL
 
     # Backend test
-
     backend.get_user_json()
 
     # Start communicating
-    # ard.hello()
+    ard.hello()
 
-    # while True:
+    while True:
 
-    #     ard.post()
-    #     sleep(1)
-    #     #backendPost()
-    #     #backendRequest()
-    #     #arduinoRequest()
-    #     #bluetoothTick()
+         ard.send_state(backend.get_state())
+
+         if backend.get_state() == "AUTONOMOuS" and ard.receive_message() == "AUTONOMOuS:ack":
+            if ard.receive_message() == "CAPTURE":
+                 Camera.open_sleep_capture_close(s.CAMERA_SCREENSHOT_RESOLUTION, s.CAMERA_DIRECTORY, "img")
+                 backend.post(backend.decode_picture_to_base64)
+                 ard.send_message("CAPTURE:ack")
+
+            if (ard.receive_message()).split(":")[0] == "pos":
+                backend.post_pos(ard.receive_message())
+
+
+
+        
+         
+
+         
+
+
+         #bluetoothTick()
 
 
