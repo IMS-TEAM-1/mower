@@ -5,6 +5,7 @@ from time import sleep
 from arduino import Arduino
 from camera  import Camera
 from backend import Backend
+from btserver import Btserver
 
 import settings as s
 
@@ -25,6 +26,8 @@ if __name__ == '__main__':
 
     backend = Backend(s.BACKEND_URI,
                       s.BACKEND_PORT)
+     
+    btserver = Btserver(s.BLUETOOTH_UUID)
 
 
     # Backend test
