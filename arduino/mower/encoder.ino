@@ -83,5 +83,5 @@ float getGyroValueAtEnd(){
 }
 
 float getAverageGyroValue(){
-  return ((getGyroValueAtStart() + getGyroValueAtEnd()) / 2);
+  return ((getGyroValueAtStart() + getGyroValueAtEnd()) * 0.5);
 }

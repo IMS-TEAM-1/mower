@@ -74,7 +74,7 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
       rotateFullCircles(calculateFullCirclesNeeded(degreesToRotate), rotateLeftOrRight, motorSpeed);
     }
     
-    int calcDegreesToRotate = getGyroZ() - (degreesToRotate % 360);
+    int calcDegreesToRotate = getGyroZ() - ((degreesToRotate - ROTATING_LEFT_MOMENTUM_OFFSET) % 360);
 
     if(calcDegreesToRotate >= -180){
       while(getGyroZ() > calcDegreesToRotate){
@@ -108,7 +108,7 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
       rotateFullCircles(calculateFullCirclesNeeded(degreesToRotate), rotateLeftOrRight, motorSpeed);
     }
 
-    int calcDegreesToRotate = getGyroZ() + (degreesToRotate % 360);
+    int calcDegreesToRotate = getGyroZ() + ((degreesToRotate - ROTATING_RIGHT_MOMENTUM_OFFSET) % 360);
 
     if(calcDegreesToRotate <= 180){
       while(getGyroZ() < calcDegreesToRotate){

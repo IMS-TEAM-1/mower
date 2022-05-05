@@ -61,9 +61,9 @@ void loop() {
       stopMotors();
       break;
     case(AUTONOMOUS):
-      doAutonomousTick();
+      //doAutonomousTick();
       //testSpeedOfRobot();
-      //doDrivingInASquareTest();
+      doDrivingInASquareTest();
       break;
     case(MANUAL):
       //deactivateLEDs();

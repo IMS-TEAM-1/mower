@@ -14,7 +14,7 @@ void doDrivingInASquareTest(){
   _delay(3);
   
 
-  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
@@ -28,7 +28,7 @@ void doDrivingInASquareTest(){
 
   _delay(3);
 
-  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
@@ -42,7 +42,7 @@ void doDrivingInASquareTest(){
 
   _delay(3);
 
-  rotateByDegrees(90, RIGHT, MAX_MOTOR_SPEED);
+  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
@@ -55,6 +55,57 @@ void doDrivingInASquareTest(){
   sendSerialCoordinates();
 
   _delay(3);
+
+
+
+  rotateByDegrees(180, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+
+  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+
+  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+
+  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
+  _delay(3);
+
+  driveForwardDistance(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialCoordinates();
+
+  _delay(3);
+  
   
   while(true){
     stopMotors();
@@ -103,9 +154,10 @@ void driveForwardDistance(int millimeters){
   resetEncoderValues();
 
   while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
-    Serial.println(getGyroZ());
-    move(FORWARD, MAX_MOTOR_SPEED);
+    move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   }
+  Serial.println(getGyroZ());
+  delay(300);
 }
 
 void calculateAndUpdateXAndYCoordinates(){
@@ -116,6 +168,7 @@ void calculateAndUpdateXAndYCoordinates(){
   float newXCoordinate =  getCoordinateX() + (getDistanceTravelled() * cos(calcTemp) * -1);
   float newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
 
+  Serial.println("gyroAverage: " + String(getAverageGyroValue()));
   Serial.println("\ncalcTemp: " + String(calcTemp));
   Serial.println("Cos: " + String(cos(calcTemp)));
   Serial.println("Sin: " + String(sin(calcTemp)));
