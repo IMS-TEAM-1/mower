@@ -2,6 +2,7 @@
 Constants to be used for the RPiZ program.
 """
 import os
+import sys
 
 # This is a define that will enable testing to be done
 # on computers that are NOT raspberry pis
@@ -46,6 +47,14 @@ CAMERA_DIRECTORY = '/home/pi/pics/' if PIZERO  \
 CAMERA_SCREENSHOT_RESOLUTION = (1024, 768)
 
 
+#########################
+#########################
+# KEYBOARD              #
+#########################
+#########################
+KEYB_HANDLE = sys.stdin
+
+
 
 #########################
 #########################
@@ -69,4 +78,4 @@ MOBILE_BLUETOOTH_DUMMY = 'some configuration loldunno'
 # BTSERVER              #
 #########################
 #########################
-BLUETOOTH_UUID = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+BLUETOOTH_UUID = '94f39d29-7d6d-437d-973b-fba39e49d4ee'
