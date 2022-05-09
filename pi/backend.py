@@ -54,7 +54,7 @@ class Backend:
         return data.decode('utf-8')
 
 
-    def post_pos(self, position):
+    def post_loc(self, position):
         """
         sent position of mower to the backend
 
@@ -62,12 +62,29 @@ class Backend:
         x = position.split(":")[1]
         y = position.split(":")[2]
 
-        data = {'key1': x,
-        'key2': y,
-        'api_paste_format':'python'
+        data = {
+            "x": x,
+            "y": y,
         }
         
-        get_uri  = self.base_uri + '/mowers/7/locations'
+        get_uri  = self.base_uri + '/mowers/1/locations'
+        requests.post(get_uri, data = data)
+
+    def post_pic(self, position, pic64):
+        """
+        send picture and position of mower to the backend
+
+        """
+        x = position.split(":")[1]
+        y = position.split(":")[2]
+
+        data = {
+            "x": x,
+            "y": y,
+            "image": pic64
+        }
+        
+        get_uri  = self.base_uri + '/mowers/1/images'
         requests.post(get_uri, data = data)
 
     
