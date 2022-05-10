@@ -1,73 +1,135 @@
 """
-This is the backend module.
+This is the backend module. Communication with our
+server should be handled through this module.
+It both sends and receives certain types of communication.
 """
 import requests
 import json
+import base64
 
-# Create a constant for our url, notice the slash / in the end.
+import time
+import os
 
-# make the request and convert it to json object
-# here we concatenate the base url with the object we want to request, "mowers"
+import settings as s
+
+from threading import Thread
+from queue     import Queue
 
 import settings as s
 
 
-class Backend:
+class Backend(Thread):
     """
     This class is meant to communicate with our backend.
     Check the settings file for constants used.
     """
-    def __init__(self, uri, port):
-        self.base_uri  = f'http://{uri}:{port}/'
-        # create object
-        # and maybe establish a connection?
+    def __init__(self, uri, port, q_to_controller):
+        Thread.__init__(self)
+        self.base_uri           = f'http://{uri}:{port}/'
+        self.orders             = Queue(maxsize = 10)
+        self.q_to_controller    = q_to_controller
 
     def __del__(self):
         # terminate connection to backend
         pass
 
+
     def get_user_json(self):
-        get_uri  = self.base_uri + 'users'
+        get_uri  = f'{self.base_uri}users'
         print(f'\tgetting request: {get_uri}')
         response = requests.get(get_uri).json()
         print(response)
         return response
 
+
     def get_state(self):
         """
-        get state from backend
+        Get state from backend
         """
         get_uri  = self.base_uri
         print(f'\tgetting request: {get_uri}')
-        beState = requests.get(get_uri).json()
-        print(beState)
-        return beState
+        be_state = requests.get(get_uri).json()
+        print(f'Backend reports state {be_state}')
+        return be_state
 
 
-    def decode_picture_to_base64(self):
+    def encode_picture_to_base64(self, filepath):
         """
         Convert picture to base64
         """
-        with open('/home/pi/pics/img',"rb") as image_file:
+        with open(filepath, 'rb') as image_file:
             data = base64.b64encode(image_file.read())
             #print(data)
         return data.decode('utf-8')
 
 
-    def post_pos(self, position):
+    def post_pos(self, x, y):
         """
-        sent position of mower to the backend
-
+        Send position of mower to the backend.
         """
-        x = position.split(":")[1]
-        y = position.split(":")[2]
-
-        data = {'key1': x,
-        'key2': y,
-        'api_paste_format':'python'
-        }
-        
+        data = {'key1' : x,
+                'key2' : y,
+                'api_paste_format' : 'python' }
         get_uri  = self.base_uri + '/mowers/7/locations'
         requests.post(get_uri, data = data)
 
-    
+
+    # def post_pic(self, position, pic64):
+    #     """
+    #     send picture and position of mower to the backend
+    #     """
+    #     x = position.split(":")[1]
+    #     y = position.split(":")[2]
+    #     data = {"x" : x,
+    #             "y" : y,
+    #             "image" : pic64 }
+    #     get_uri  = self.base_uri + '/mowers/1/images'
+    #     requests.post(get_uri, data = data)
+
+
+    def order(self, message, payload = None):
+        """
+        Master tells this module what to do.
+        """
+        self.orders.put( (message, payload) )
+
+    def to_controller(self, message, payload = None):
+        """
+        Report to master.
+        """
+        self.q_to_controller.put( (self, message, payload) )
+
+    def run(self):
+
+        running = True
+
+        while running:
+
+            (message, payload) = self.orders.get()
+
+            if message == 'POSITION':
+                (x,y) = payload
+                print('Backend received position'
+                      + f'({x},{y})')
+                self.post_pos(x,y)
+
+            elif message == 'GET_STATE':
+                be_state = self.get_state()
+                self.to_controller('STATE', be_state)
+
+            elif message == 'SEND_IMG':
+                filepath = payload
+                b64_img  = self.encode_picture_to_base64(filepath)
+                ###
+                ### <<< send image here >>>
+                ###
+
+            elif message == 'EXIT':
+                running = False
+                print('backend quits!')
+
+            else:
+                print('Backend: unhandled message '
+                      + f'({message},{payload})')
+
+        print('backend loop done!')
