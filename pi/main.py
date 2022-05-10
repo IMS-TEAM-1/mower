@@ -15,7 +15,7 @@ from keyb       import Keyb
 
 import settings as s
 
-def main():
+def main(running):
     """
     This is the main function.
     It's loop is also known as 'Controller' in the modules
@@ -63,17 +63,17 @@ def main():
     camera.start()
     keyb.start()
 
-
+    #Run while loop
+    running = True
 
     # send initial orders
-    arduino.order('AUTONOMOUS')
-
+    arduino.order('STATE','STANDBY')
+    state = "STANDBY"
 
 
     # Variables used in main loop.
     waiting_for_camera = False
 
-    running = True
     while running:
         ##############################
         ##                          ##
@@ -92,15 +92,20 @@ def main():
         # All messages should conform to this standard. If there's
         # nothing of importance to send then set payload = None.
         # See here and in in the Camera module for example.
+        
+        # Waiting for message to start? get = blocking?
+        # If q_to_controller.get() == None continue
         (source, message, payload) = q_to_controller.get()
-
-
+        
+        #Update state constantly?
+        backend.order('GET_STATE')
+        
         if source is arduino:
             print(f'main(): ARD says: {message}')
 
             if message == 'CAPTURE': # we hit an obstacle
                 # arduino has stopped by itself
-                camera.order( ('CAPTURE', 'lol.jpg') )
+                camera.order( ('CAPTURE', 'image.jpg') )
                 waiting_for_camera = True
 
             if message == 'POS':
@@ -125,6 +130,9 @@ def main():
         if source is backend:
             if message == 'GOTO_BT':
                 print('Turning on BT controls')
+            elif message == 'STATE' and payload != state:
+                arduino.order(message, payload)
+                state = payload
 
 
         if source is keyb:
@@ -138,9 +146,11 @@ def main():
                 running = False
 
             elif message == 'test1':
+                arduino.order('AUTONOMOUS')
                 pass
 
             elif message == 'test2':
+                backend.order('GET_STATE')
                 pass
 
             elif message == 'test3':

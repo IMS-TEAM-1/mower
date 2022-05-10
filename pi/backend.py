@@ -46,9 +46,12 @@ class Backend(Thread):
         """
         Get state from backend
         """
-        get_uri  = self.base_uri
+        get_uri  = self.base_uri + "mowers"
         print(f'\tgetting request: {get_uri}')
-        be_state = requests.get(get_uri).json()
+        mower = requests.get(get_uri)
+        mower_info = json.loads(mower.text)[0]
+        be_state = mower_info["state"]
+        
         print(f'Backend reports state {be_state}')
         return be_state
 
