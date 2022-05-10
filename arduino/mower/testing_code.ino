@@ -1,3 +1,9 @@
+/*
+ * This file contains testing code used when developing the robot.
+ * Most of the code has been deleted over time but here are some of the last examples used to test some functionalities.
+ * Do not mistake this file for final testing of the mower
+ */
+
 bool TESTfirstTapeFound = false;
 bool TESTsecondTapeFound = false;
 

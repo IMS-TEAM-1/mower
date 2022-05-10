@@ -8,7 +8,8 @@
 typedef enum {
   STANDBY,
   AUTONOMOUS,
-  MANUAL } mowerState_t;
+  MANUAL,
+  DIAGNOSTIC} mowerState_t;
 typedef enum {
   NONE,
   FORWARD,
@@ -22,6 +23,7 @@ typedef enum {
   Stop,
   Autonomous,
   Manual,
+  Diagnostic,
   Error_1} messageFirstPart_t;
 
 typedef enum {
@@ -31,6 +33,19 @@ typedef enum {
   Left,
   Right,
   Error_2,} messageSecondPart_t;
+
+//Enum used in diagnostics when trouble shooting the mower
+typedef enum {
+  Diag_Main,
+  Diag_Autonomous,
+  Diag_Encoder,
+  Diag_Gyro,
+  Diag_Joystick,
+  Diag_Localization,
+  Diag_Motorcontrol,
+  Diag_Sensors,
+  Diag_SerialCom,
+  Diag_Done} diagntosicModule_t;
 
 //Serial defines
 #define SERIAL_UPDATE_FREQUENCY_MS 50
@@ -43,8 +58,9 @@ typedef enum {
 //Distance from object it should not detect and avoid
 #define ULTRA_SONIC_SENSOR_DISTANCE_CM 10
 
-//Motor constant, converts 0-100% to a value of 0-255 for the PWM control
+//Motor constants
 #define LOCALIZATION_CIRCLE_ROTATION_OFFSET 90.0
+
 #define ROTATING_LEFT_MOMENTUM_OFFSET 13
 #define ROTATING_RIGHT_MOMENTUM_OFFSET 13
 
@@ -52,7 +68,7 @@ typedef enum {
 
 #define MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED 45
 
-#define PERCENTAGE_TO_PWM_FACTOR 2.5
+#define PERCENTAGE_TO_PWM_FACTOR 2.55
 #define MOTOR_DEVIATION_FACTOR 0.95
 #define DEGREES_TO_RADIAN_FACTOR M_PI/180
 
@@ -69,3 +85,6 @@ typedef enum {
 
 //Camera capture time, in ms
 #define CAMERA_CAPTURE_TIME 10000
+
+//Diagnostics constans
+#define MAX_AMOUNT_OF_FAULT_CODES 20

@@ -5,8 +5,6 @@
  * 
  * This function is called continously when in autonomous-state.
  */
-long timeForNextLocationTick = 0;
-
 void doAutonomousTick(){
   //If any of the sensors are triggered, stop, and do the appropiate procedure
   if(getUltraSonicSensorTriggered()){
@@ -24,6 +22,7 @@ void doAutonomousTick(){
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 }
 
+//If line follower triggered, do this
 void doAutonomousLineFollowerProcedure(){
   stopMotors();
 
@@ -34,6 +33,7 @@ void doAutonomousLineFollowerProcedure(){
   doReverseProcedure();
 }
 
+//If ultra sonic sensor triggered, do this
 void doAutonomousUltraSonicProcedure(){
   stopMotors();
 
@@ -90,5 +90,120 @@ void waitForImageCaptured(){
       Serial.println("ERROR IN CAMERA CAPTURE");
       doLoop = false;
     }
+  }
+}
+
+
+
+
+int doAutonomousLineFollowerProcedureTest(){
+  int errorCounter = 0;
+
+  if(!resetStateLEDsTest()){errorCounter ++;}
+  
+  stopMotors();
+
+  _delay(1);
+
+  errorCounter += doReverseProcedureTest();
+
+  return errorCounter;
+}
+
+int doReverseProcedureTest(){
+  int errorCounter = 0;
+
+  if(!resetStateLEDsTest()){errorCounter ++;}
+  
+  stopMotors();
+
+  _delay(1);
+
+  driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
+
+  if(!resetStateLEDsTest()){errorCounter ++;}
+
+  
+  _delay(random(1, 3));
+  rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
+  stopMotors();
+  _delay(random(1, 3));
+  if(!resetStateLEDsTest()){errorCounter ++;}
+  
+  return errorCounter;
+}
+
+bool waitForImageCapturedTest(){
+  bool goneThroughLoop = false;
+  bool resetLedFailed = false;
+
+  bool doLoop = true;
+  long timeToCapture = millis() + CAMERA_CAPTURE_TIME;
+  
+  while(doLoop){
+    inDiagModuleLED(1);
+    stopMotors();
+    if(!resetStateLEDsTest()){resetLedFailed = true;}
+    if(millis() > timeToCapture) {
+      doLoop = false;
+      goneThroughLoop = true;
+    }
+  }
+
+  if(goneThroughLoop && resetLedFailed){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+int doAutonomousUltraSonicProcedureTest(){
+  int errorCounter = 0;
+
+  if(!resetStateLEDsTest()){errorCounter++;}
+  stopMotors();
+  _delay(1);
+  
+  if(!waitForImageCapturedTest()){
+    errorCounter += 1;
+  }
+
+  errorCounter += doReverseProcedureTest();
+
+  return errorCounter;
+}
+
+int doAutonomousTickTest(){
+  int errorCounter = 0;
+
+  if(getUltraSonicSensorTriggered()){
+    errorCounter += doAutonomousUltraSonicProcedureTest();
+  }
+  if(getLineFollowerTriggered()){
+    errorCounter += doAutonomousLineFollowerProcedureTest();
+  } 
+
+  errorCounter += activateAutonomousForwardLEDsTest();
+  
+  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  inDiagModuleLED(1);
+}
+
+bool autonomousDiagnosticTestSuccess(){
+  int timeToTestAutonomousState = 15000;
+  long timeToStopTest = millis() + timeToTestAutonomousState;
+  int amountOfErrors = 0;
+
+  while(millis() < timeToStopTest){
+    Serial.println("TEST");
+    amountOfErrors += doAutonomousTickTest();
+  }
+
+  if(amountOfErrors > 0){
+    return false;
+  }
+  else{
+    return true;
   }
 }

@@ -1,4 +1,4 @@
-//Attaches interupts to the encoders when storing the puleses, may be used for dead reckoning
+//Attaches interupts to the encoders when storing the puleses, used for dead reckoning
 void setupEncoderInterrupts(){
   attachInterrupt(Encoder_1.getIntNum(), isr_process_encoder1, RISING);
   attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
@@ -36,12 +36,21 @@ long getEncoder2Pulses(){
   return Encoder_2.getPulsePos();
 }
 
+
+void setEncoder1Pulse(long pos){
+  Encoder_1.setPulsePos(pos);
+}
+void setEncoder2Pulse(long pos){
+  Encoder_2.setPulsePos(pos);
+}
+
 void resetEncoderValues(){
   Encoder_1.setPulsePos(0);
   Encoder_2.setPulsePos(0);
   resetGyroStartAndEnd();
 }
 
+//When calculating distance travelled, it is better to calculate the average between the encoders to lower the error margin
 float getEncoderAverage(){
   return (((-1* getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5);
 }

@@ -1,4 +1,4 @@
-//Probably sets up PWM-control for motors
+//Sets up PWM-control for motors
 void setupMotors(){
   TCCR1A = _BV(WGM10);
   TCCR1B = _BV(CS11) | _BV(WGM12);
@@ -52,15 +52,17 @@ void move(direction_t direction, int speed)
   currentDirection = NONE;
 }
 
+//If we want the mower to move based on distance
 void driveDistance(int millimeters, direction_t movingDirection, int motorSpeed){
   resetEncoderValues();
 
   while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
     move(movingDirection, motorSpeed);
   }
-  Serial.println("Gyro in driveDistance: " + String(getGyroZ()));
+  //Serial.println("Gyro in driveDistance: " + String(getGyroZ()));
 }
 
+//If we want the mower to move based on time
 void driveTime(int ms, direction_t movingDirection, int motorSpeed){
   resetEncoderValues();
   long timeWhenDone = millis() + ms;
@@ -68,9 +70,10 @@ void driveTime(int ms, direction_t movingDirection, int motorSpeed){
   while(millis() < timeWhenDone){
     move(movingDirection, motorSpeed);
   }
-  Serial.println("Gyro in driveTime: " + String(getGyroZ()));
+  //Serial.println("Gyro in driveTime: " + String(getGyroZ()));
 }
 
+//This function makes the mower rotate, this works with angles ove 360 degrees (making it do full turns as well)
 void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int motorSpeed) {
   if(rotateLeftOrRight == LEFT){
     if(calculateFullCirclesNeeded(degreesToRotate) > 0){
@@ -93,12 +96,8 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
       
       while(!wentOverHighestPeak){
         move(LEFT, motorSpeed);
-        if(getGyroZ() >= -180 && getGyroZ() < 90){
-          wasInLowerValueHalf = true;
-        }
-        if(wasInLowerValueHalf && getGyroZ() > 90){
-          wentOverHighestPeak = true;
-        }
+        if(getGyroZ() >= -180 && getGyroZ() < 90){wasInLowerValueHalf = true;}
+        if(wasInLowerValueHalf && getGyroZ() > 90){wentOverHighestPeak = true;}
       }
       while(getGyroZ() > degreeToRotateTo){
         move(LEFT, motorSpeed);
@@ -127,12 +126,8 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
       
       while(!wentOverHighestPeak){
         move(RIGHT, motorSpeed);
-        if(getGyroZ() > 0 && getGyroZ() <= 180){
-          wasInUpperValueHalf = true;
-        }
-        if(wasInUpperValueHalf && getGyroZ() < -90){
-          wentOverHighestPeak = true;
-        }
+        if(getGyroZ() > 0 && getGyroZ() <= 180){wasInUpperValueHalf = true;}
+        if(wasInUpperValueHalf && getGyroZ() < -90){wentOverHighestPeak = true;}
       }
       while(getGyroZ() < degreeToRotateTo){
         move(RIGHT, motorSpeed);
@@ -145,6 +140,7 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
   stopMotors();
 }
 
+//Takes the amount of cirles you want to make the mower turn and does so with the initial gyro value as start and end point
 void rotateFullCircles(int amountOfCircles, direction_t rotateLeftOrRight, int motorSpeed){
   for(int i = 0; i < amountOfCircles; i++){
     int angleNow = getGyroZ();
@@ -158,18 +154,10 @@ void rotateFullCircles(int amountOfCircles, direction_t rotateLeftOrRight, int m
 
     //Rotate until first half of the circle is completed
     while(!circleRotated){
-      if(getGyroZ() <= 0 && getGyroZ() > -90){
-        beenInSecondQuadrant = true;
-      }
-      else if(getGyroZ() <= -90 && getGyroZ() > -180){
-        beenInThirdQuadrant = true;
-      }
-      else if(getGyroZ() <= 180 && getGyroZ() > 90){
-        beenInFourthQuadrant = true;
-      }
-      else if(getGyroZ() <= 90 && getGyroZ() > 0){
-        beenInFirstQuadrant = true;
-      }
+      if(getGyroZ() <= 0 && getGyroZ() > -90){beenInSecondQuadrant = true;}
+      else if(getGyroZ() <= -90 && getGyroZ() > -180){beenInThirdQuadrant = true;}
+      else if(getGyroZ() <= 180 && getGyroZ() > 90){beenInFourthQuadrant = true;}
+      else if(getGyroZ() <= 90 && getGyroZ() > 0){beenInFirstQuadrant = true;}
 
       if(beenInFirstQuadrant && beenInSecondQuadrant && beenInThirdQuadrant && beenInFourthQuadrant){
         if(rotateLeftOrRight == LEFT){
@@ -194,6 +182,7 @@ void rotateFullCircles(int amountOfCircles, direction_t rotateLeftOrRight, int m
   }
 }
 
+//Simple math (int truncates)
 int calculateFullCirclesNeeded(int degreesToRotate){
   return abs(degreesToRotate)/360;
 }

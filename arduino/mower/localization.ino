@@ -1,6 +1,11 @@
+//Coordinates storing where the robot is
 int coordinateX = 0;
 int coordinateY = 0;
 
+//We only want to update the Pi with coordinates with a certain interval, storing the last time we updated is done in a variable
+long timeForNextLocationTick = 0;
+
+//Tick that checks whether we should update our coordinates or wait until the timer has reset
 void doLocalizationTick(){
   if(millis() > timeForNextLocationTick){
     timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME_MS;
@@ -11,10 +16,8 @@ void doLocalizationTick(){
   }
 }
 
+//This function calculates what the coordinates should be when called and sets them in the global variables
 void calculateAndUpdateXAndYCoordinates(){
-  stopMotors();
-  _delay(0.3); //To make sure that robot is stopped
-
   float newXCoordinate;
   float newYCoordinate;
   
@@ -23,26 +26,7 @@ void calculateAndUpdateXAndYCoordinates(){
   float calcTemp = ((getAverageGyroValue() + LOCALIZATION_CIRCLE_ROTATION_OFFSET) * DEGREES_TO_RADIAN_FACTOR);
 
   newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
-  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) * -1));
-
-//  if(getAverageGyroValue() <= 90 && getAverageGyroValue() > -90){
-//    newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
-//  }
-//  else if((getAverageGyroValue() > 90 && getAverageGyroValue() <= 180) || (getAverageGyroValue() >= -180 && getAverageGyroValue() <= -90)){
-//    newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
-//  }
-//
-//  if(getAverageGyroValue() <= 180 && getAverageGyroValue() >= 0){
-//    newXCoordinate = getCoordinateX() + (getDistanceTravelled() * cos(calcTemp));
-//  }
-//  else if(getAverageGyroValue() >= -180 && getAverageGyroValue() < 0){
-//    newXCoordinate = getCoordinateX() - (getDistanceTravelled() * cos(calcTemp));
-//  }
-
-//  Serial.println("gyroAverage: " + String(getAverageGyroValue()));
-//  Serial.println("\ncalcTemp: " + String(calcTemp));
-//  Serial.println("Cos: " + String(cos(calcTemp)));
-//  Serial.println("Sin: " + String(sin(calcTemp)));
+  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) * -1)); //*-1 since we want the x-axis to be inverted due to the offset of 90 degrees
 
   setCoordinateX(newXCoordinate);
   setCoordinateY(newYCoordinate);
@@ -50,6 +34,7 @@ void calculateAndUpdateXAndYCoordinates(){
   resetEncoderValues();
 }
 
+//Knowing how many pulses are generated per millimeter makes sure that the calculation is correct even when battery is low/mower moving slow
 float getDistanceTravelled(){
   return (getEncoderAverage() * MILLIMETER_PER_ENCOER_PULSE);
 }
@@ -59,6 +44,7 @@ void printCoordinates(){
   Serial.println("Coordinate Y: " + String(getCoordinateY()) + "\n");
 }
 
+//Following functions gets, sets or resets the coorinates
 int getCoordinateX(){
   return coordinateX;
 }

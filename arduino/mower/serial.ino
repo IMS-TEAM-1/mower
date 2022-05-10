@@ -121,6 +121,7 @@ String getRecievedSerialDataSecondPart(){
   return recievedMessageSecondPart;
 }
 
+//Some specific NOK, CAPTURE and coorinate functions used often
 void sendMessageNOK(String message){
   message.trim();
   Serial.println(message + ":" + "nok");
@@ -139,7 +140,26 @@ void sendSerialCoordinates(){
   Serial.println("POS:" + String(getCoordinateX()) + "," + String(getCoordinateY()));
 }
 
-void clearMessages(){
+void sendDiagnosticSuccess(){
+  Serial.println("DIAGNOSTIC:ok");
+}
+
+//Convert all fault codes from queue into one string and send it to Pi
+void sendDiagnosticFailed(ArduinoQueue<int> faultCodes){
+  String s_faultCodes;
+  
+  while(!faultCodes.isEmpty()){
+    s_faultCodes += String(faultCodes.dequeue());
+    if(!faultCodes.isEmpty()){
+      s_faultCodes += ",";
+    }
+  }
+  
+  Serial.println("DIAGNOSTIC:" + s_faultCodes);
+}
+
+//Resets all stored messages
+void clearStoredMessages(){
   recievedMessage = "";
   recievedMessageFirstPart = "";
   recievedMessageSecondPart = "";
@@ -154,6 +174,7 @@ bool recievedCaptureAck(){
     return false;
 }
 
+//This function tries to ack the first message first and internalyy, if there is a second "parameter" in the word, it does that too
 bool ackReviecedMessage(){
   if(ackReviecedMessageFirstPart()){
     return true;
@@ -189,6 +210,10 @@ bool ackReviecedMessageFirstPart(){
       currentState = AUTONOMOUS;
       sendMessageAck("AUTONOMOUS");
       return true;
+    case(Diagnostic):
+      currentState = DIAGNOSTIC;
+      sendMessageAck("DIAGNOSTIC");
+      return true;
     case(Error_1):
       return false;
   }
@@ -221,6 +246,7 @@ bool ackReviecedMessageSecondPart(){
   }
 }
 
+//This is done to make the code easier to read within the case-switches
 messageFirstPart_t convertMessageFirstPartToInt(String message){
   message.trim();
   
@@ -236,10 +262,14 @@ messageFirstPart_t convertMessageFirstPartToInt(String message){
   else if(message.equals("MANUAL")){
     return Manual;
   }
+  else if(message.equals("DIAGNOSTIC")){
+    return Diagnostic;
+  }
   else
     return Error_1;
 }
 
+//This is done to make the code easier to read within the case-switches
 messageSecondPart_t convertMessageSecondPartToInt(String message){
   message.trim();
   
