@@ -24,18 +24,10 @@ void doAutonomousTick(){
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 }
 
-void doLocalizationTick(){
-  if(millis() > timeForNextLocationTick){
-    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME_MS;
-
-    calculateAndUpdateXAndYCoordinates();
-
-    sendSerialCoordinates();
-  }
-}
-
 void doAutonomousLineFollowerProcedure(){
   stopMotors();
+
+  _delay(1);
 
   calculateAndUpdateXAndYCoordinates();
 
@@ -45,6 +37,8 @@ void doAutonomousLineFollowerProcedure(){
 void doAutonomousUltraSonicProcedure(){
   stopMotors();
 
+  _delay(1);
+
   calculateAndUpdateXAndYCoordinates();
   
   sendSerialUltraSonicTriggered();
@@ -53,16 +47,22 @@ void doAutonomousUltraSonicProcedure(){
 
   doReverseProcedure();
 }
+
 //This function simply does a simple reversing manuever
 void doReverseProcedure(){
   activateAutonomousLEDs();
-  move(BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
-  _delay(1);
+
+  driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
+
+  calculateAndUpdateXAndYCoordinates();
+  
   stopMotors();
+
+  _delay(1);
 
   activateAutonomousLEDs();
   
-  move(randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR);
+  rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
   _delay(random(1, 3));
   stopMotors();
   activateAutonomousLEDs();

@@ -1,177 +1,48 @@
 int coordinateX = 0;
 int coordinateY = 0;
 
-bool TESTfirstTapeFound = false;
-bool TESTsecondTapeFound = false;
-
-void doDrivingInASquareTest(){
-  driveForwardDistance(500);
-      
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-  
-
-  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-
-  
-
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-
-  
-
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-  rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-
-  
-
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-
-
-  rotateByDegrees(180, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-
-  rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  
-  _delay(3);
-
-  driveForwardDistance(500);
-
-  calculateAndUpdateXAndYCoordinates();
-  
-  sendSerialCoordinates();
-
-  _delay(3);
-  
-  
-  while(true){
-    stopMotors();
-  }
-}
-
-void testSpeedOfRobot(){
-  if(!getLineFollowerTriggered()){
-    Serial.println("Moving until tape found");
-
-    move(FORWARD, MAX_MOTOR_SPEED);
-  }
-  else{
-    TESTfirstTapeFound = true;
-    Serial.println("Tape found, stopping in 3 seconds");
-    stopMotors();
-    resetEncoderValues();
-    _delay(3);
-
-    //move(FORWARD, MAX_MOTOR_SPEED);
-    //_delay(0.5);
-    
-//    while(!TESTsecondTapeFound){
-//      move(FORWARD, MAX_MOTOR_SPEED);
-//      if(getLineFollowerTriggered()){
-//        TESTsecondTapeFound = true; 
-//      }
-//    }
-
-    driveForwardDistance(1000);
+void doLocalizationTick(){
+  if(millis() > timeForNextLocationTick){
+    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME_MS;
 
     calculateAndUpdateXAndYCoordinates();
-    printCoordinates();
-    
-    //printEncoderPulseValues();
-    //Serial.println("\nDistance travelled: ");
-    //Serial.println(getDistanceTravelled());
-    
-    while(true){
-      stopMotors();
-    }
-  }
-}
 
-void driveForwardDistance(int millimeters){
-  resetEncoderValues();
-
-  while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
-    move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+    sendSerialCoordinates();
   }
-  Serial.println(getGyroZ());
-  delay(300);
 }
 
 void calculateAndUpdateXAndYCoordinates(){
+  stopMotors();
+  _delay(0.3); //To make sure that robot is stopped
+
+  float newXCoordinate;
+  float newYCoordinate;
+  
   setGyroValueAtEnd(getGyroZ());
   
   float calcTemp = ((getAverageGyroValue() + LOCALIZATION_CIRCLE_ROTATION_OFFSET) * DEGREES_TO_RADIAN_FACTOR);
-  
-  float newXCoordinate =  getCoordinateX() + (getDistanceTravelled() * cos(calcTemp) * -1);
-  float newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
 
-  Serial.println("gyroAverage: " + String(getAverageGyroValue()));
-  Serial.println("\ncalcTemp: " + String(calcTemp));
-  Serial.println("Cos: " + String(cos(calcTemp)));
-  Serial.println("Sin: " + String(sin(calcTemp)));
+  newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
+  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) * -1));
+
+//  if(getAverageGyroValue() <= 90 && getAverageGyroValue() > -90){
+//    newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
+//  }
+//  else if((getAverageGyroValue() > 90 && getAverageGyroValue() <= 180) || (getAverageGyroValue() >= -180 && getAverageGyroValue() <= -90)){
+//    newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
+//  }
+//
+//  if(getAverageGyroValue() <= 180 && getAverageGyroValue() >= 0){
+//    newXCoordinate = getCoordinateX() + (getDistanceTravelled() * cos(calcTemp));
+//  }
+//  else if(getAverageGyroValue() >= -180 && getAverageGyroValue() < 0){
+//    newXCoordinate = getCoordinateX() - (getDistanceTravelled() * cos(calcTemp));
+//  }
+
+//  Serial.println("gyroAverage: " + String(getAverageGyroValue()));
+//  Serial.println("\ncalcTemp: " + String(calcTemp));
+//  Serial.println("Cos: " + String(cos(calcTemp)));
+//  Serial.println("Sin: " + String(sin(calcTemp)));
 
   setCoordinateX(newXCoordinate);
   setCoordinateY(newYCoordinate);
@@ -179,22 +50,8 @@ void calculateAndUpdateXAndYCoordinates(){
   resetEncoderValues();
 }
 
-float getGyroX(){
-  return gyro.getAngle(1);
-}
-
-float getGyroY(){
-  return gyro.getAngle(2);
-}
-
-float getGyroZ(){
-  return gyro.getAngle(3);
-}
-
-void gyroPrintValues(){
-  Serial.println("Gyro X: " + String(getGyroX()));
-  Serial.println("Gyro Y: " + String(getGyroY()));
-  Serial.println("Gyro Z: " + String(getGyroZ()) + "\n");
+float getDistanceTravelled(){
+  return (getEncoderAverage() * MILLIMETER_PER_ENCOER_PULSE);
 }
 
 void printCoordinates(){

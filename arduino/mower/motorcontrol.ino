@@ -52,20 +52,23 @@ void move(direction_t direction, int speed)
   currentDirection = NONE;
 }
 
-void doRotationTest(){
-  rotateByDegrees(90, LEFT, MAX_MOTOR_SPEED);
+void driveDistance(int millimeters, direction_t movingDirection, int motorSpeed){
+  resetEncoderValues();
 
-  _delay(3);
+  while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
+    move(movingDirection, motorSpeed);
+  }
+  Serial.println("Gyro in driveDistance: " + String(getGyroZ()));
+}
 
-  rotateByDegrees(180, RIGHT, MAX_MOTOR_SPEED);
+void driveTime(int ms, direction_t movingDirection, int motorSpeed){
+  resetEncoderValues();
+  long timeWhenDone = millis() + ms;
 
-  _delay(3);
-
-  rotateByDegrees(270, RIGHT, MAX_MOTOR_SPEED);
-
-  _delay(3);
-
-  rotateByDegrees(360, LEFT, MAX_MOTOR_SPEED);
+  while(millis() < timeWhenDone){
+    move(movingDirection, motorSpeed);
+  }
+  Serial.println("Gyro in driveTime: " + String(getGyroZ()));
 }
 
 void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int motorSpeed) {

@@ -136,7 +136,7 @@ void sendSerialUltraSonicTriggered(){
 }
 
 void sendSerialCoordinates(){
-  Serial.println("POS:" + String(getCoordinateX()) + ":" + String(getCoordinateY()));
+  Serial.println("POS:" + String(getCoordinateX()) + "," + String(getCoordinateY()));
 }
 
 void clearMessages(){

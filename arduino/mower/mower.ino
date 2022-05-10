@@ -37,8 +37,7 @@ void setup() {
   currentState = STANDBY;
   rgbled_0.setpin(44);
   gyro.begin();
-  //Is this really needed?
-  //randomSeed((unsigned long)(lightsensor_12.read() * 123456));
+  randomSeed(analogRead(0));
 }
 
 /*
@@ -61,13 +60,10 @@ void loop() {
       stopMotors();
       break;
     case(AUTONOMOUS):
-      //doAutonomousTick();
-      //testSpeedOfRobot();
-      doDrivingInASquareTest();
+      doAutonomousTick();
+      //doDrivingInASquareTest();
       break;
     case(MANUAL):
-      //deactivateLEDs();
-      //printEncoderPulseValues();
       doManualControlTick();
       break;
   }
