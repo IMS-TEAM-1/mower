@@ -3,9 +3,9 @@
  * However, this may not be used sinc the joystick probably will not get implemented.
  */
 
-int currentSpeedLeftMotor = 0;
-int currentSpeedRightMotor = 0;
-int currentAngle = 0;
+int currentJoysticSpeedLeftMotor = 0;
+int currentJoysticSpeedRightMotor = 0;
+int currentAngleJoystick = 0;
 
 //The two following functions calculates what speed the motors should go in when getting length and angle from the PI, from the app, from the joystick
 int calculateLeftMotorSpeed(double circleLength, double circleAngle){
@@ -31,4 +31,16 @@ int getQuadrantNumberFromAngle(int circleAngle){
   if(circleAngle > 180 && circleAngle < 270){ return 3; }
   if(circleAngle >= 270 && circleAngle <= 360){ return 2; }
   else{ return 0; }
+}
+
+int getCurrentJoysticSpeedLeftMotor(){
+  return currentJoysticSpeedLeftMotor;
+}
+
+int getCurrentJoysticSpeedRightMotor(){
+  return currentJoysticSpeedRightMotor;
+}
+
+int getCurrentAngleJoystick(){
+  return currentAngleJoystick;
 }

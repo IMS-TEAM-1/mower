@@ -1,3 +1,5 @@
+direction_t currentDirection = NONE;
+
 //Sets up PWM-control for motors
 void setupMotors(){
   TCCR1A = _BV(WGM10);
@@ -9,9 +11,9 @@ void setupMotors(){
 void doManualControlTick(){
   /*
    * If joystick is wanted:
-   * moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentSpeedLeftMotor, currentAngle),calculateRightMotorSpeed(currentSpeedRightMotor, currentAngle));
+   * moveBySeparateMotorSpeeds(calculateLeftMotorSpeed(currentJoysticSpeedLeftMotor, currentAngleJoystick),calculateRightMotorSpeed(currentJoysticSpeedRightMotor, currentAngleJoystick));
    */
-   move(currentDirection, MOTOR_SPEED_MANUAL * PERCENTAGE_TO_PWM_FACTOR);
+   move(getCurrentDirection(), MOTOR_SPEED_MANUAL * PERCENTAGE_TO_PWM_FACTOR);
 }
 
 /*
@@ -20,36 +22,39 @@ void doManualControlTick(){
  */
 void move(direction_t direction, int speed)
 {
+  setCurrentDirection(direction);
   float leftSpeed = 0;
   float rightSpeed = 0;
   
-  if(direction == FORWARD){
+  if(getCurrentDirection() == FORWARD){
     activateManualForwardLEDs();
     leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = speed;
-  }else if(direction == BACKWARD){
+  }
+  else if(getCurrentDirection() == BACKWARD){
     activateManualBackwardLEDs();
     leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = -speed;
-  }else if(direction == LEFT){
+  }
+  else if(getCurrentDirection() == LEFT){
     activateManualLeftLEDs();
     leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = -speed;
-  }else if(direction == RIGHT){
+  }
+  else if(getCurrentDirection() == RIGHT){
     activateManualRightLEDs();
     leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
     rightSpeed = speed;
-  }else if(direction == NONE) {
+  }
+  else if(getCurrentDirection() == NONE) {
     leftSpeed = 0;
     rightSpeed = 0;
   }
   
-  Encoder_1.setTarPWM(leftSpeed);
-  Encoder_2.setTarPWM(rightSpeed);
+  setEncoderPwm(1, leftSpeed);
+  setEncoderPwm(2, rightSpeed);
 
   _loop();
-
-  currentDirection = NONE;
 }
 
 //If we want the mower to move based on distance
@@ -208,8 +213,103 @@ direction_t randomLeftOrRight(){
 void stopMotors(){
   resetStateLEDs();
   move(NONE, 0);
-  currentSpeedLeftMotor = 0;
-  currentSpeedRightMotor = 0;
-  currentAngle = 0;
-  currentDirection = NONE;
+  currentJoysticSpeedLeftMotor = 0;
+  currentJoysticSpeedRightMotor = 0;
+  currentAngleJoystick = 0;
+  setCurrentDirection(NONE);
+}
+
+void setCurrentDirection(direction_t newDirection){
+  currentDirection = newDirection;
+}
+
+direction_t getCurrentDirection(){
+  return currentDirection;
+}
+
+void setEncoderPwm(int encoderNumber, int pwmValue){
+  //The in-built library is playing tricks with magic numbers: it removes a total of 2 in value if the speed is 2 or -2, or 1 if the value is 1 or -1 since it wants the motors to ramp up/down and have a safety margin of 2.
+  if(encoderNumber == 1){
+    if(pwmValue > 0){
+      Encoder_1.setTarPWM(pwmValue + ENCODER_LIBRARY_PWM_OFFSET_VALUE);
+    }
+    else if(pwmValue < 0){
+      Encoder_1.setTarPWM(pwmValue - ENCODER_LIBRARY_PWM_OFFSET_VALUE);
+    }
+    else{
+      Encoder_1.setTarPWM(0);
+    }
+  }
+  else if(encoderNumber == 2){
+    if(pwmValue > 0){
+      Encoder_2.setTarPWM(pwmValue + ENCODER_LIBRARY_PWM_OFFSET_VALUE);
+    }
+    else if(pwmValue < 0){
+      Encoder_2.setTarPWM(pwmValue - ENCODER_LIBRARY_PWM_OFFSET_VALUE);
+    }
+    else{
+      Encoder_2.setTarPWM(0);
+    }
+  }
+}
+
+
+
+
+
+bool moveTest(direction_t direction, int speed)
+{
+  bool errorEncoutered = false;
+
+  setCurrentDirection(direction);
+  int leftSpeed = 0;
+  int rightSpeed = 0;
+  
+  if(getCurrentDirection() == FORWARD){
+    activateManualForwardLEDs();
+    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = speed;
+  }
+  else if(getCurrentDirection() == BACKWARD){
+    activateManualBackwardLEDs();
+    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -speed;
+  }
+  else if(getCurrentDirection() == LEFT){
+    activateManualLeftLEDs();
+    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -speed;
+  }
+  else if(getCurrentDirection() == RIGHT){
+    activateManualRightLEDs();
+    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = speed;
+  }
+  else if(getCurrentDirection() == NONE) {
+    leftSpeed = 0;
+    rightSpeed = 0;
+  }
+
+  setEncoderPwm(1, leftSpeed);
+  setEncoderPwm(2, rightSpeed);
+
+  moveForAmountOfTime(1000);
+
+  if(Encoder_1.getCurPwm() != leftSpeed || Encoder_2.getCurPwm() != rightSpeed || getCurrentDirection() != direction){
+    Serial.println("TEST1");
+    errorEncoutered = true;
+  }
+
+  setEncoderPwm(1, 0);
+  setEncoderPwm(2, 0);
+  setCurrentDirection(NONE);
+
+  moveForAmountOfTime(1000);
+
+  if(Encoder_1.getCurPwm() != 0 || Encoder_2.getCurPwm() != 0 || getCurrentDirection() != NONE){
+    Serial.println("TEST2");
+    errorEncoutered = true;
+  }
+
+  return errorEncoutered;
 }

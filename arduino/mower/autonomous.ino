@@ -26,7 +26,7 @@ void doAutonomousTick(){
 void doAutonomousLineFollowerProcedure(){
   stopMotors();
 
-  _delay(1);
+  stopMotorsSeconds(1);
 
   calculateAndUpdateXAndYCoordinates();
 
@@ -37,7 +37,7 @@ void doAutonomousLineFollowerProcedure(){
 void doAutonomousUltraSonicProcedure(){
   stopMotors();
 
-  _delay(1);
+  stopMotorsSeconds(1);
 
   calculateAndUpdateXAndYCoordinates();
   
@@ -58,12 +58,12 @@ void doReverseProcedure(){
   
   stopMotors();
 
-  _delay(1);
+  stopMotorsSeconds(1);
 
   activateAutonomousLEDs();
   
   rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
-  _delay(random(1, 3));
+  stopMotorsSeconds(random(1, 3));
   stopMotors();
   activateAutonomousLEDs();
 }
@@ -103,7 +103,7 @@ int doAutonomousLineFollowerProcedureTest(){
   
   stopMotors();
 
-  _delay(1);
+  stopMotorsSeconds(1);
 
   errorCounter += doReverseProcedureTest();
 
@@ -117,17 +117,17 @@ int doReverseProcedureTest(){
   
   stopMotors();
 
-  _delay(1);
+  stopMotorsSeconds(1);
 
   driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   if(!resetStateLEDsTest()){errorCounter ++;}
 
   
-  _delay(random(1, 3));
+  stopMotorsSeconds(random(1, 3));
   rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
   stopMotors();
-  _delay(random(1, 3));
+  stopMotorsSeconds(random(1, 3));
   if(!resetStateLEDsTest()){errorCounter ++;}
   
   return errorCounter;
@@ -141,7 +141,7 @@ bool waitForImageCapturedTest(){
   long timeToCapture = millis() + CAMERA_CAPTURE_TIME;
   
   while(doLoop){
-    inDiagModuleLED(1);
+    inDiagModuleLED(2);
     stopMotors();
     if(!resetStateLEDsTest()){resetLedFailed = true;}
     if(millis() > timeToCapture) {
@@ -163,7 +163,7 @@ int doAutonomousUltraSonicProcedureTest(){
 
   if(!resetStateLEDsTest()){errorCounter++;}
   stopMotors();
-  _delay(1);
+  stopMotorsSeconds(1);
   
   if(!waitForImageCapturedTest()){
     errorCounter += 1;
@@ -187,16 +187,18 @@ int doAutonomousTickTest(){
   errorCounter += activateAutonomousForwardLEDsTest();
   
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  inDiagModuleLED(1);
+  inDiagModuleLED(2);
 }
 
 bool autonomousDiagnosticTestSuccess(){
+  
+  
+  
   int timeToTestAutonomousState = 15000;
   long timeToStopTest = millis() + timeToTestAutonomousState;
   int amountOfErrors = 0;
 
   while(millis() < timeToStopTest){
-    Serial.println("TEST");
     amountOfErrors += doAutonomousTickTest();
   }
 

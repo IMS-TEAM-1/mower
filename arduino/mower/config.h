@@ -37,7 +37,6 @@ typedef enum {
 //Enum used in diagnostics when trouble shooting the mower
 typedef enum {
   Diag_Main,
-  Diag_Autonomous,
   Diag_Encoder,
   Diag_Gyro,
   Diag_Joystick,
@@ -45,6 +44,7 @@ typedef enum {
   Diag_Motorcontrol,
   Diag_Sensors,
   Diag_SerialCom,
+  Diag_Autonomous,
   Diag_Done} diagntosicModule_t;
 
 //Serial defines
@@ -82,6 +82,8 @@ typedef enum {
 #define MOTOR_SPEED_AUTONOMOUS_LEFT 60
 #define MOTOR_SPEED_AUTONOMOUS_RIGHT 60
 #define MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT 60
+
+#define ENCODER_LIBRARY_PWM_OFFSET_VALUE 2
 
 //Camera capture time, in ms
 #define CAMERA_CAPTURE_TIME 10000

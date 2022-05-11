@@ -20,7 +20,6 @@
  * How to use can be found in repective .ino file.
  */
 mowerState_t currentState = STANDBY;
-direction_t currentDirection = NONE;
 
 MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
 MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);

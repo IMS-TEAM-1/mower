@@ -22,26 +22,26 @@ void doSelfDiagnosticTest(){
         inDiagModuleLED(1);
         doMainDiag();
         delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Autonomous;
-        break;
-        
-      case(Diag_Autonomous):
-        inDiagModuleLED(2);
-        doAutonomousDiag();
-        delay(1000);
         moduleCurrentlyDiagnosing = Diag_Encoder;
         break;
         
       case(Diag_Encoder):
-        inDiagModuleLED(3);
+        inDiagModuleLED(2);
         doEncoderDiag();
         delay(1000);
         moduleCurrentlyDiagnosing = Diag_Gyro;
         break;
         
       case(Diag_Gyro):
-        inDiagModuleLED(4);
+        inDiagModuleLED(3);
         doGyroDiag();
+        delay(1000);
+        moduleCurrentlyDiagnosing = Diag_Localization;
+        break;
+
+      case(Diag_Localization):
+        inDiagModuleLED(4);
+        doLocalizationDiag();
         delay(1000);
         moduleCurrentlyDiagnosing = Diag_Joystick;
         break;
@@ -50,33 +50,34 @@ void doSelfDiagnosticTest(){
         inDiagModuleLED(5);
         doJoystickDiag();
         delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Localization;
-        break;
-        
-      case(Diag_Localization):
-        inDiagModuleLED(6);
-        doLocalizationDiag();
-        delay(1000);
         moduleCurrentlyDiagnosing = Diag_Motorcontrol;
         break;
+
         
       case(Diag_Motorcontrol):
-        inDiagModuleLED(7);
+        inDiagModuleLED(6);
         doMotorcontrolDiag();
         delay(1000);
         moduleCurrentlyDiagnosing = Diag_Sensors;
         break;
         
       case(Diag_Sensors):
-        inDiagModuleLED(8);
+        inDiagModuleLED(7);
         doSensorsDiag();
         delay(1000);
         moduleCurrentlyDiagnosing = Diag_SerialCom;
         break;
         
       case(Diag_SerialCom):
-        inDiagModuleLED(9);
+        inDiagModuleLED(8);
         doSerialComDiag();
+        delay(1000);
+        moduleCurrentlyDiagnosing = Diag_Autonomous;
+        break;
+        
+      case(Diag_Autonomous):
+        inDiagModuleLED(9);
+        doAutonomousDiag();
         delay(1000);
         moduleCurrentlyDiagnosing = Diag_Done;
         break;
@@ -84,9 +85,11 @@ void doSelfDiagnosticTest(){
        case(Diag_Done):
         if(storedFaultCodes.isEmpty()){
           sendDiagnosticSuccess();
+          doDiagnosticDoneLEDSprial(true);
         }
         else{
           sendDiagnosticFailed(storedFaultCodes);
+          doDiagnosticDoneLEDSprial(false);
         }
         moduleCurrentlyDiagnosing = Diag_Main;
         currentState = STANDBY;
@@ -106,14 +109,6 @@ void doMainDiag(){
   if(!moduleSucceeded){storedFaultCodes.enqueue(1);}
 }
 
-void doAutonomousDiag(){
-  bool moduleSucceeded = false;
-
-  moduleSucceeded = autonomousDiagnosticTestSuccess();
-  
-  if(!moduleSucceeded){storedFaultCodes.enqueue(2);}
-}
-
 void doEncoderDiag(){
   bool moduleSucceeded = false;
 
@@ -131,8 +126,8 @@ void doEncoderDiag(){
   }
 
   resetEncoderValues();
-
-  if(!moduleSucceeded){storedFaultCodes.enqueue(3);}
+  
+  if(!moduleSucceeded){storedFaultCodes.enqueue(2);}
 }
 
 void doGyroDiag(){
@@ -152,6 +147,25 @@ void doGyroDiag(){
       }
     }
     
+  }
+
+  if(!moduleSucceeded){storedFaultCodes.enqueue(3);}
+}
+
+void doLocalizationDiag(){
+  bool moduleSucceeded = false;
+
+  resetCoordinates();
+
+  if(getCoordinateX() == 0 && getCoordinateY() == 0){
+    int randomValue = random(0, 1000);
+
+    setCoordinateX(randomValue);
+    setCoordinateY(randomValue);
+
+    if(getCoordinateX() == randomValue && getCoordinateY() == randomValue){
+      moduleSucceeded = true;
+    }
   }
 
   if(!moduleSucceeded){storedFaultCodes.enqueue(4);}
@@ -179,34 +193,83 @@ void doJoystickDiag(){
   if(!moduleSucceeded){storedFaultCodes.enqueue(5);}
 }
 
-void doLocalizationDiag(){
-  bool moduleSucceeded = false;
-
-
-
-  //if(!moduleSucceeded){storedFaultCodes.enqueue(6);}
-}
-
 void doMotorcontrolDiag(){
   bool moduleSucceeded = false;
 
+  stopMotors();
 
+  if(getCurrentJoysticSpeedLeftMotor() == 0 && getCurrentJoysticSpeedRightMotor() == 0 && getCurrentAngleJoystick() == 0 && getCurrentDirection() == NONE){
+    if(moveTest(FORWARD, 100) == false){
+      if(moveTest(BACKWARD, 50) == false){
+        if(moveTest(LEFT, 150) == false){
+          if(moveTest(RIGHT, 200) == false){
+            if(moveTest(NONE, 0) == false){
+              resetEncoderValues();
+              moduleSucceeded = true;
+            }
+          }
+        }
+      }
+    }
+  }
 
-  //if(!moduleSucceeded){storedFaultCodes.enqueue(7);}
+  if(!moduleSucceeded){storedFaultCodes.enqueue(6);}
 }
 
 void doSensorsDiag(){
   bool moduleSucceeded = false;
 
+  if(ultraSonicSensor.distanceCm() >= 0 && ultraSonicSensor.distanceCm() <= 100){
+    if(getLineFollowerTriggered()){
+      driveDistance(100, BACKWARD, 100);
+      stopMotors();
+      
+      if(getLineFollowerTriggered()){
+        driveDistance(100, BACKWARD, 100);
+        stopMotors();
+        
+        if(getLineFollowerTriggered()){
+          driveDistance(100, BACKWARD, 100);
+          stopMotors();
+          
+          if(!getLineFollowerTriggered()){
+            moduleSucceeded = true;
+          }
+        }
+      }
+      else{
+        moduleSucceeded = true;
+      }
+    }
+    else{
+      moduleSucceeded = true;
+    }
+  }
 
-
-  //if(!moduleSucceeded){storedFaultCodes.enqueue(8);}
+  if(!moduleSucceeded){storedFaultCodes.enqueue(7);}
 }
 
 void doSerialComDiag(){
   bool moduleSucceeded = false;
 
+  clearStoredMessages();
 
+  if(getRecievedSerialDataFirstPart == "" && getRecievedSerialDataSecondPart == ""){
+    String s_temp = "DIAGNOSTIC_SERIAL:TEST";
+    checkAndSetRecievedMessage(s_temp);
 
-  //if(!moduleSucceeded){storedFaultCodes.enqueue(9);}
+    if(getRecievedSerialDataFirstPart == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart == "TEST"){
+      moduleSucceeded = true;
+    }
+  }
+
+  if(!moduleSucceeded){storedFaultCodes.enqueue(8);}
+}
+
+void doAutonomousDiag(){
+  bool moduleSucceeded = false;
+
+  moduleSucceeded = autonomousDiagnosticTestSuccess();
+  
+  if(!moduleSucceeded){storedFaultCodes.enqueue(9);}
 }

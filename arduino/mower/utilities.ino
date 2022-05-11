@@ -2,7 +2,7 @@
  * Here, some utility functions can be found.
  */
 
-void _delay(float seconds) {
+void stopMotorsSeconds(float seconds) {
   if(seconds < 0.0){
     seconds = 0.0;
   }
@@ -13,12 +13,15 @@ void _delay(float seconds) {
 void _loop() {
   Encoder_1.loop();
   Encoder_2.loop();
+    
   gyro.update();
 }
 
 void moveForAmountOfTime(int ms){
   int endTime = millis() + ms;
-  while(millis() < endTime) _loop();
+  while(millis() < endTime){
+    _loop();
+  }
 }
 
 void resetStateLEDs(){
@@ -166,8 +169,75 @@ bool resetStateLEDsTest(){
 }
 
 void inDiagModuleLED(int index){
-  for(int i = 0; i < index; i++){
-    rgbled_0.setColor(i+1, 100, 0, 100);
+  for(int i = 1; i <= index; i++){
+    rgbled_0.setColor(i, 100, 0, 100);
   }
   rgbled_0.show();
+}
+
+void doDiagnosticDoneLEDSprial(bool wasSuccessful){
+  resetStateLEDsTest();
+  rgbled_0.show();
+  delay(300);
+  
+  for(int i = 1; i <= 12; i++){
+    rgbled_0.setColor(i, 100, 0, 100);
+    rgbled_0.show();
+    delay(100);
+  }
+
+  resetStateLEDsTest();
+  rgbled_0.show();
+  delay(300);
+
+  if(wasSuccessful){
+    doDiagnosticSucceededFlash();
+  }
+  else{
+    doDiagnosticFailedFlash();
+  }
+}
+
+void doDiagnosticSucceededFlash(){
+  rgbled_0.setColor(0, 0, 100, 0);
+  rgbled_0.show();
+  delay(600);
+
+  deactivateLEDs();
+  rgbled_0.show();
+  delay(600);
+
+  rgbled_0.setColor(0, 0, 100, 0);
+  rgbled_0.show();
+  delay(600);
+
+  deactivateLEDs();
+  rgbled_0.show();
+  delay(600);
+
+  rgbled_0.setColor(0, 0, 100, 0);
+  rgbled_0.show();
+  delay(1000);
+}
+
+void doDiagnosticFailedFlash(){
+  rgbled_0.setColor(0, 100, 0, 0);
+  rgbled_0.show();
+  delay(600);
+
+  deactivateLEDs();
+  rgbled_0.show();
+  delay(600);
+
+  rgbled_0.setColor(0, 100, 0, 0);
+  rgbled_0.show();
+  delay(600);
+
+  deactivateLEDs();
+  rgbled_0.show();
+  delay(600);
+
+  rgbled_0.setColor(0, 100, 0, 0);
+  rgbled_0.show();
+  delay(1000);
 }

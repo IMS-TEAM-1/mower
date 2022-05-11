@@ -79,10 +79,11 @@ void checkAndSetRecievedMessage(String message){
   message.toCharArray(buf, message.length());
   token = strtok(buf, delimiter);
   
-  recievedMessageFirstPart = token;
+  setSerialDataFirstPart(token);
+  
   if(token != NULL){
     token = strtok(NULL, delimiter);
-    recievedMessageSecondPart = token;
+    setSerialDataSecondPart(token);
   }
 }
 
@@ -109,6 +110,16 @@ String readSerialBus(){
   else{
     return "EoL Not found";
   }
+}
+
+//Set the first word stored
+void setSerialDataFirstPart(String s_dataToStore){
+  recievedMessageFirstPart = s_dataToStore;
+}
+
+//Set the second word stored
+void setSerialDataSecondPart(String s_dataToStore){
+  recievedMessageSecondPart = s_dataToStore;
 }
 
 //Get the first word stored
@@ -222,23 +233,23 @@ bool ackReviecedMessageFirstPart(){
 bool ackReviecedMessageSecondPart(){
   switch(convertMessageSecondPartToInt(getRecievedSerialDataSecondPart())){
     case(None):
-      currentDirection = NONE;
+      setCurrentDirection(NONE);
       sendMessageAck("NONE");
       return true;
     case(Forward):
-      currentDirection = FORWARD;
+      setCurrentDirection(FORWARD);
       sendMessageAck("FORWARD");
       return true;
     case(Backward):
-      currentDirection = BACKWARD;
+      setCurrentDirection(BACKWARD);
       sendMessageAck("BACKWARD");
       return true;
     case(Left):
-      currentDirection = LEFT;
+      setCurrentDirection(LEFT);
       sendMessageAck("LEFT");
       return true;
     case(Right):
-      currentDirection = RIGHT;
+      setCurrentDirection(RIGHT);
       sendMessageAck("RIGHT");
       return true;
     case(Error_2):
