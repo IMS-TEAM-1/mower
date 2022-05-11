@@ -53,15 +53,24 @@ class BtServer(Thread):
             profiles        = [ bt.SERIAL_PORT_PROFILE ] )
 
     def connect_to_app(self):
+        """
+        Establish connection to the app.
+        """
         sock, info = self.server_socket.accept()
         self.client_socket  = sock
         self.client_info    = info
         print("connected")
 
     def recieve_message_from_app(self):
+        """
+        Returning messages from the app.
+        """
         return self.client_socket.recv(1024)
 
     def close_connection(self):
+        """
+        Closes connection to the app.
+        """
         self.client_socket.close()
         print("disconnected")
         self.server_socket.close()
