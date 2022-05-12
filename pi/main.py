@@ -15,7 +15,7 @@ from keyb       import Keyb
 
 import settings as s
 
-def main(running):
+def main():
     """
     This is the main function.
     It's loop is also known as 'Controller' in the modules
@@ -28,16 +28,16 @@ def main(running):
     q_to_controller = Queue(maxsize = 20)
 
     # Create instances
-    arduino = Arduino(s.ARDUINO_SERIAL_DEV,
-                      s.ARDUINO_SERIAL_BAUD,
-                      s.ARDUINO_SERIAL_TIMEOUT,
-                      q_to_controller)
+    #arduino = Arduino(s.ARDUINO_SERIAL_DEV,
+    #                  s.ARDUINO_SERIAL_BAUD,
+    #                  s.ARDUINO_SERIAL_TIMEOUT,
+    #                  q_to_controller)
 
     camera  = Camera(s.CAMERA_SCREENSHOT_RESOLUTION,
                      s.CAMERA_DIRECTORY,
                      q_to_controller)
 
-    backend = Backend(s.BACKEND_URI,
+    backend = Backend(s.BACKEND_ADR,
                       s.BACKEND_PORT,
                       q_to_controller)
 
@@ -53,13 +53,13 @@ def main(running):
     # backend.get_user_json()
 
     # Initialize hardware (don't make connections!)
-    arduino.hello()
-    # btserver.hello()
+    # arduino.hello()
+    btserver.hello()
 
     # Start the threads
-    arduino.start()
-    backend.start()
-    # btserver.start()
+    #arduino.start()
+    #backend.start()
+    btserver.start()
     camera.start()
     keyb.start()
 
@@ -67,10 +67,10 @@ def main(running):
     running = True
 
     # send initial orders
-    arduino.order('STATE','STANDBY')
-    state = "STANDBY"
-
-
+    #arduino.order('STATE','STANDBY')
+    
+    state = 'STANDBY'
+    #state = 'NO_CONN'
     # Variables used in main loop.
     waiting_for_camera = False
 
@@ -92,33 +92,37 @@ def main(running):
         # All messages should conform to this standard. If there's
         # nothing of importance to send then set payload = None.
         # See here and in in the Camera module for example.
-        
-        # Waiting for message to start? get = blocking?
-        # If q_to_controller.get() == None continue
         (source, message, payload) = q_to_controller.get()
-        
-        #Update state constantly?
-        backend.order('GET_STATE')
-        
-        if source is arduino:
-            print(f'main(): ARD says: {message}')
 
-            if message == 'CAPTURE': # we hit an obstacle
+
+        #if source is arduino:
+            # print(f'main(): ARD says: {message}')
+
+        #    if message == 'CAPTURE': # we hit an obstacle
                 # arduino has stopped by itself
-                camera.order( ('CAPTURE', 'image.jpg') )
-                waiting_for_camera = True
+        #        camera.order( ('CAPTURE', 'image.jpg') )
+        #        waiting_for_camera = True
 
-            if message == 'POS':
-                (x, y) = payload
+        #    if message == 'POS':
+        #        (x, y) = payload
                 # something like this?
-                backend.order('POS_DATA', (x, y))
+        #        backend.order('POS_DATA', (x, y))
 
-
+        #elif
         if source is btserver:
-            pass
+            print('main() got btserver message!')
+            if message == 'MANUAL':
+                if payload == 'FORWARD':
+                    arduino.order('MANUAL:FORWARD')
+                if payload == 'BACKWARD':
+                    arduino.order('MANUAL:BACKWARD')
+                if payload == 'LEFT':
+                    arduino.order('MANUAL:LEFT')
+                if payload == 'RIGHT':
+                    arduino.order('MANUAL:RIGHT')
 
 
-        if source is camera:
+        elif source is camera:
             print(f'main(): CAM says: {message}')
             if message == 'CAPTURE_DONE':
                 filepath = payload
@@ -127,18 +131,41 @@ def main(running):
                 backend.order('SEND_IMG', filepath)
 
 
-        if source is backend:
+        elif source is backend:
+
+            print('main() got backend message!')
+
             if message == 'GOTO_BT':
+                btserver.order('BACKEND_SAYS_ACTIVATE_BT')
                 print('Turning on BT controls')
-            elif message == 'STATE' and payload != state:
-                arduino.order(message, payload)
-                state = payload
+
+            elif message == 'STATE':
+                ok_state = state in s.ARDUINO_VALID_STATES
+                if ok_state:
+                    if payload != state:
+                        arduino.order('SET_STATE', payload)
+                        state = payload
+                        if state == 'MANUAL':
+                            arduino.order('MANUAL:NONE')
+                            btserver.order('BACKEND_SAYS_ACTIVATE_BT')
+                            print('Turning on BT controls')
+                        elif state == 'AUTONOMOUS':
+                            arduino.order('AUTONOMOUS')
+                        elif state == 'STANDBY':
+                            arduino.order('STANDBY')
+                        elif state == 'DIAGNOSTIC':
+                            arduino.order('DIAGNOSTIC')
+                    else:
+                        print(f'main(): state was already {payload}')
+                else:
+                    print(f'main(): invalid state: {payload}')
 
 
-        if source is keyb:
+
+        elif source is keyb:
             if message == 'EXIT':
                 print('main() got EXIT from keyb')
-                arduino.order('EXIT')
+                #arduino.order('EXIT')
                 btserver.order('EXIT')
                 camera.order('EXIT')
                 backend.order('EXIT')
@@ -154,19 +181,21 @@ def main(running):
                 pass
 
             elif message == 'test3':
+                btserver.order('BACKEND_SAYS_ACTIVATE_BT')
                 pass
 
             elif message == 'test4':
+                btserver.order('BACKEND_SAYS_DEACTIVATE_BT')
                 pass
 
         else:
             print( 'main() unhandled message:')
-            print(f'    ({source}, {message}, {payload})')
+            print(f'    ({source}, <<<{message}>>>, <<<{payload}>>>)')
 
     print('joining threads')
-    arduino.join()
-    backend.join()
-    # btserver.join()
+    # arduino.join()
+    # backend.join()
+    btserver.join()
     camera.join()
     keyb.join()
     print('exiting')

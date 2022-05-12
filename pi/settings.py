@@ -31,6 +31,7 @@ ARDUINO_SERIAL_DEV  = '/dev/ttyUSB0' if ON_UNIX \
                 else 'c:\\loldunno-this-is-windows'
 
 ARDUINO_SERIAL_TIMEOUT = 1
+ARDUINO_VALID_STATES = ['AUTONOMOUS','MANUAL','STANDBY','DIAGNOSTIC']
 
 
 
@@ -61,7 +62,7 @@ KEYB_HANDLE = sys.stdin
 # BACKEND               #
 #########################
 #########################
-BACKEND_URI  = '13.49.61.28'
+BACKEND_ADR  = '13.48.151.7'
 BACKEND_PORT = 8080
 
 

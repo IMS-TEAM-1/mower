@@ -8,14 +8,10 @@ import json
 import base64
 
 import time
-import os
-
-import settings as s
+import os       as os
 
 from threading import Thread
 from queue     import Queue
-
-import settings as s
 
 
 class Backend(Thread):
@@ -23,16 +19,32 @@ class Backend(Thread):
     This class is meant to communicate with our backend.
     Check the settings file for constants used.
     """
-    def __init__(self, uri, port, q_to_controller):
+    def __init__(self, adr, port, q_to_controller):
         Thread.__init__(self)
-        self.base_uri           = f'http://{uri}:{port}/'
-        self.orders             = Queue(maxsize = 10)
-        self.q_to_controller    = q_to_controller
+        self.backend_adr            = adr
+        self.backend_service_port   = port
+        self.base_uri               = f'http://{adr}:{port}/'
+        self.orders                 = Queue(maxsize = 10)
+        self.q_to_controller        = q_to_controller
 
     def __del__(self):
         # terminate connection to backend
         pass
 
+    def can_reach_backend(self, timeout_sec=2):
+        """
+        Testing function if backend is responsive. Run before communication.
+        This test should avoid crashes.
+        """
+        tries       = 1
+        cmd         = f'ping -c {tries}'            + \
+                       f' -w {timeout_sec}'         + \
+                       f' -O {self.backend_adr}'    + \
+                       ' 1> /dev/null'
+        ret = os.system(cmd)
+        if ret == 0:
+            print(f'BACKEND: could not reach {self.backend_adr} for ping.')
+        return not bool(ret)
 
     def get_user_json(self):
         get_uri  = f'{self.base_uri}users'
@@ -46,12 +58,12 @@ class Backend(Thread):
         """
         Get state from backend
         """
-        get_uri  = self.base_uri + "mowers"
+        get_uri     = self.base_uri + 'mowers'
         print(f'\tgetting request: {get_uri}')
-        mower = requests.get(get_uri)
-        mower_info = json.loads(mower.text)[0]
-        be_state = mower_info["state"]
-        
+        mower       = requests.get(get_uri)
+        mower_info  = json.loads(mower.text)[0]
+        be_state    = mower_info['state']
+
         print(f'Backend reports state {be_state}')
         return be_state
 
@@ -72,22 +84,22 @@ class Backend(Thread):
         """
         data = {'key1' : x,
                 'key2' : y,
-                }  #'api_paste_format' : 'python' << is not implemented in backend
+                'api_paste_format' : 'python' }
         get_uri  = self.base_uri + '/mowers/1/locations'
         requests.post(get_uri, data = data)
 
 
-    def post_pic(self, x, y, pic64):
-         """
-         send picture and position of mower to the backend
-         """
-         #x = position.split(":")[1]
-         #y = position.split(":")[2]
-         data = {"x" : x,
-                 "y" : y,
-                 "image" : pic64 }
-         get_uri  = self.base_uri + '/mowers/1/images'
-         requests.post(get_uri, data = data)
+    # def post_pic(self, position, pic64):
+    #     """
+    #     send picture and position of mower to the backend
+    #     """
+    #     x = position.split(":")[1]
+    #     y = position.split(":")[2]
+    #     data = {"x" : x,
+    #             "y" : y,
+    #             "image" : pic64 }
+    #     get_uri  = self.base_uri + '/mowers/1/images'
+    #     requests.post(get_uri, data = data)
 
 
     def order(self, message, payload = None):
@@ -102,39 +114,68 @@ class Backend(Thread):
         """
         self.q_to_controller.put( (self, message, payload) )
 
+
     def run(self):
 
         running = True
 
+        period = 0.2
+        period_for_backend_requests = 10.0
+        time_left_until_be_state_req = period_for_backend_requests
+
+        last_known_position = (0,0)
+
         while running:
+            q_elem_available    = not self.orders.empty()
+            time_for_be_req     = time_left_until_be_state_req <= 0.0
 
-            (message, payload) = self.orders.get()
+            if q_elem_available:
+                (message, payload) = self.orders.get()
 
-            if message == 'POSITION':
-                (x,y) = payload
-                print('Backend received position'
-                      + f'({x},{y})')
-                self.post_pos(x,y)
+                backend_pinged = self.can_reach_backend(timeout_sec=2)
 
-            elif message == 'GET_STATE':
-                be_state = self.get_state()
-                self.to_controller('STATE', be_state)
+                if message == 'POS_DATA':
+                    (x,y) = payload
+                    last_known_position = (x,y)
+                    if backend_pinged:
+                        self.post_pos(x,y)
+                        # print('Backend received position'
+                        #       + f'({x},{y})')
+                    else:
+                        print('BACKEND: Not posting postion because ping failed.')
 
-            elif message == 'SEND_IMG':
-                filepath = payload
-                b64_img  = self.encode_picture_to_base64(filepath)
-                ###
-                ### <<< send image here >>>
-                ###
-                (x, y) = last_known_position
-                self.post_pic(x, y, b64_img)
 
-            elif message == 'EXIT':
-                running = False
-                print('backend quits!')
+                elif message == 'SEND_IMG':
+                    filepath = payload
+                    b64_img  = self.encode_picture_to_base64(filepath)
+                    pos      = last_known_position
+                    if backend_pinged:
+                        pass
+                        ###
+                        ### <<< send image here >>>
+                        ###
+                    else:
+                        print('BACKEND: Not posting postion because ping failed.')
+
+                elif message == 'EXIT':
+                    running = False
+                    print('backend quits!')
+
+                else:
+                    print('Backend: unhandled message '
+                          + f'({message},{payload})')
+
+            elif time_for_be_req:
+                backend_pinged = self.can_reach_backend(timeout_sec=2)
+                if backend_pinged:
+                    be_state = self.get_state()
+                    self.to_controller('STATE', be_state)
+                    time_left_until_be_state_req = period_for_backend_requests
+                else:
+                    print('BACKEND: No state gotten because of failed ping.')
 
             else:
-                print('Backend: unhandled message '
-                      + f'({message},{payload})')
+                time.sleep(period)
+                time_left_until_be_state_req -= period
 
         print('backend loop done!')

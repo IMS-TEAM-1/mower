@@ -176,6 +176,10 @@ class Arduino(Thread):
                     print(f'ARDUINO: got {message}, going again!')
                     self.send_serial('CAPTURE:ack')
 
+                elif message == 'SET_STATE':
+                    self.send_serial(payload)
+                    ard_state = payload
+
                 else:
                     print('ARDUINO: Unhandled message '
                           + f'({message},{payload})')

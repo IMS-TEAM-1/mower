@@ -5,6 +5,7 @@ implementation.
 
 import time
 # import os
+import select
 
 from threading import Thread
 from queue     import Queue
@@ -39,9 +40,10 @@ class BtServer(Thread):
     def hello(self):
         """
         Initialize the to allow connection with the app.
+        Advertises the BT device as connectable server.
         """
         self.server_socket = bt.BluetoothSocket(bt.RFCOMM)
-        self.server_socket.bind(("", bt.PORT_ANY))
+        self.server_socket.bind((self.uuid, bt.PORT_ANY))
         self.server_socket.listen(1)
         self.server_port = self.server_socket.getsockname()[1]
 
@@ -51,29 +53,35 @@ class BtServer(Thread):
             service_id      = self.uuid,
             service_classes = [ self.uuid, bt.SERIAL_PORT_CLASS ],
             profiles        = [ bt.SERIAL_PORT_PROFILE ] )
+        
+        #self.server_socket.settimeoutvalue(0.1)
+        
 
     def connect_to_app(self):
         """
-        Establish connection to the app.
+        Creates socket connection to app.
         """
-        sock, info = self.server_socket.accept()
-        self.client_socket  = sock
-        self.client_info    = info
+        self.client_socket, self.client_info = self.server_socket.accept()
+        print('LOG: '+str(self.client_socket)+' '+str(self.client_info))
+        #self.client_socket  = sock
+        #self.client_info    = info
         print("connected")
+        return True
 
     def recieve_message_from_app(self):
         """
-        Returning messages from the app.
+        Returns message from app.
         """
         return self.client_socket.recv(1024)
 
     def close_connection(self):
         """
-        Closes connection to the app.
+        Closes socket connection and creates a new socket.
         """
         self.client_socket.close()
-        print("disconnected")
         self.server_socket.close()
+        print("disconnected")
+        self.hello()
 
 
     def order(self, message, payload = None):
@@ -93,43 +101,64 @@ class BtServer(Thread):
 
         running = True
         period  = 0.1
+        
+        states = ['NO_CONN', 'MK_CONN', 'BT_CONN']
+        state = 'NO_CONN'
 
         while running:
-
-            try:
-                data = self.recieve_message_from_app()
-            except IOError:
-                self.close_connection()
-
-            bt_data_available   = not (len(data) == 0)
-            q_elem_available    = not self.orders.empty()
-
-            if bt_data_available:
-                # var data is non-empty!
-                #
-                # Examples of incoming data:
-                #   "FORWARD"
-                #   "BACKWARD"
-                #   ....?
-                if data == 'FORWARD':
-                    self.to_controller('FORWARD')
-
-
-            elif q_elem_available:
+            
+            q_elem_available = not self.orders.empty()
+            
+            if q_elem_available:
                 (message, payload) = self.orders.get()
+                
+                if message == 'BACKEND_SAYS_ACTIVATE_BT':
+                    print(f'BT got message <<<{message}>>>')
+                    state = 'MK_CONN'
+                        
+                elif message == 'BACKEND_SAYS_DEACTIVATE_BT':
+                        print(f'BT got message <<<{message}>>>')
+                        self.close_connection()
+                        state = 'NO_CONN'
+                        print('BT DEACTIVATED!')
+                        
+                elif message == 'EXIT':
+                        running = False
+                        print('btserver quits!')
+                else:
+                    print(f'BT unrecognized order <<<{message}>>>')
+            
+            
+            if state == 'BT_CONN':
+                has_bt_input = select.select([self.client_socket, ],[], [], 0.0)[0]
+                print(f'BT-INP: {has_bt_input}')
 
-                if message == 'HIT_OBSTACLE':
-                    pass
+                if has_bt_input:
+                    try:
+                        bt_data = self.recieve_message_from_app() #Is blocking
+                        bt_data = bt_data.decode('UTF-8').strip()
+                        if len(bt_data) > 0:
+                            #Send data to main
+                            #self.to_controller('MANUAL',bt_data)
+                            print(bt_data)
+                    except IOError:
+                        self.close_connection()
+                        state = 'NO_CONN'
+                else:
+                    time.sleep(period)
+                    
+                
+            elif state == 'MK_CONN':
+                if self.connect_to_app(): # this may be blocking
+                    state = 'BT_CONN'
+            
+            elif state == 'NO_CONN':
+                #Tell Main BT disconnected
+                #self.to_controller('DISCONNECTED')
+                #if message == 'RESTART_SERVER':
+                pass
 
-                if message == 'RESTART_SERVER':
-                    pass
 
-                if message == 'SOME_BT_ORDER_FROM_MAIN':
-                    pass
-
-                if message == 'EXIT':
-                    running = False
-                    print('btserver quits!')
 
             else:
                 time.sleep(period)
