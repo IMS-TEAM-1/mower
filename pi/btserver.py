@@ -53,19 +53,14 @@ class BtServer(Thread):
             service_id      = self.uuid,
             service_classes = [ self.uuid, bt.SERIAL_PORT_CLASS ],
             profiles        = [ bt.SERIAL_PORT_PROFILE ] )
-        
-        #self.server_socket.settimeoutvalue(0.1)
-        
+
 
     def connect_to_app(self):
         """
         Creates socket connection to app.
         """
         self.client_socket, self.client_info = self.server_socket.accept()
-        print('LOG: '+str(self.client_socket)+' '+str(self.client_info))
-        #self.client_socket  = sock
-        #self.client_info    = info
-        print("connected")
+        print(f'BTSERVER: ({self.client_socket},{self.client_info}) connected')
         return True
 
     def recieve_message_from_app(self):
@@ -80,8 +75,7 @@ class BtServer(Thread):
         """
         self.client_socket.close()
         self.server_socket.close()
-        print("disconnected")
-        self.hello()
+        print('BTSERVER: close_connection()')
 
 
     def order(self, message, payload = None):
@@ -96,78 +90,71 @@ class BtServer(Thread):
         """
         self.q_to_controller.put( (self, message, payload) )
 
+    def has_input(self, handle):
+        return select.select([handle, ],[], [], 0.0)[0]
 
     def run(self):
 
         running = True
         period  = 0.1
-        
+
         states = ['NO_CONN', 'MK_CONN', 'BT_CONN']
         state = 'NO_CONN'
 
         while running:
-            
+
             q_elem_available = not self.orders.empty()
-            
+
+            run_bt = self.has_input(self.client_socket) if state == 'BT_CONN' else \
+                     self.has_input(self.server_socket) if state == 'MK_CONN' else \
+                     False # 'NO_CONN'
+
             if q_elem_available:
                 (message, payload) = self.orders.get()
-                
+
                 if message == 'BACKEND_SAYS_ACTIVATE_BT':
                     print(f'BT got message <<<{message}>>>')
                     state = 'MK_CONN'
-                        
+
                 elif message == 'BACKEND_SAYS_DEACTIVATE_BT':
-                        print(f'BT got message <<<{message}>>>')
-                        self.close_connection()
-                        state = 'NO_CONN'
-                        print('BT DEACTIVATED!')
-                        
+                    print(f'BT got message <<<{message}>>>')
+                    self.close_connection()
+                    state = 'NO_CONN'
+                    print('BT DEACTIVATED!')
+
                 elif message == 'EXIT':
-                        running = False
-                        print('btserver quits!')
+                    running = False
+                    print('btserver quits!')
                 else:
                     print(f'BT unrecognized order <<<{message}>>>')
-            
-            
-            if state == 'BT_CONN':
-                has_bt_input = select.select([self.client_socket, ],[], [], 0.0)[0]
-                print(f'BT-INP: {has_bt_input}')
 
-                if has_bt_input:
+
+            elif run_bt:
+                if state == 'BT_CONN':
                     try:
                         bt_data = self.recieve_message_from_app() #Is blocking
                         bt_data = bt_data.decode('UTF-8').strip()
                         if len(bt_data) > 0:
                             #Send data to main
                             #self.to_controller('MANUAL',bt_data)
-                            print(bt_data)
+                            print(f'BTSERVER: received {bt_data}')
                     except IOError:
                         self.close_connection()
                         state = 'NO_CONN'
-                else:
-                    time.sleep(period)
-                    
-                
-            elif state == 'MK_CONN':
-                if self.connect_to_app(): # this may be blocking
-                    state = 'BT_CONN'
-            
-            elif state == 'NO_CONN':
-                #Tell Main BT disconnected
-                #self.to_controller('DISCONNECTED')
-                #if message == 'RESTART_SERVER':
-                pass
+                        self.to_controller('CONNECTION_BROKEN')
+                        self.hello()
+
+                elif state == 'MK_CONN':
+                    if self.connect_to_app(): # this may be blocking
+                        state = 'BT_CONN'
+
+                # This state should never run! See bools at top of loop.
+                elif state == 'NO_CONN':
+                    print('BTSERVER: wtf did you do man?!?!')
 
 
 
             else:
                 time.sleep(period)
 
-
         print('btserver loop done!')
-
-
-
-
-
-
