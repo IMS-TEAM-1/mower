@@ -72,8 +72,8 @@ class Backend(Thread):
         """
         data = {'key1' : x,
                 'key2' : y,
-                'api_paste_format' : 'python' }  #'api_paste_format' : 'python' << is not implemented in backend
-        get_uri  = self.base_uri + '/mowers/7/locations'
+                }  #'api_paste_format' : 'python' << is not implemented in backend
+        get_uri  = self.base_uri + '/mowers/1/locations'
         requests.post(get_uri, data = data)
 
 
@@ -126,6 +126,7 @@ class Backend(Thread):
                 ###
                 ### <<< send image here >>>
                 ###
+                (x, y) = last_known_position
                 self.post_pic(x, y, b64_img)
 
             elif message == 'EXIT':
