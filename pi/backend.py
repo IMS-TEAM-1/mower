@@ -72,22 +72,22 @@ class Backend(Thread):
         """
         data = {'key1' : x,
                 'key2' : y,
-                'api_paste_format' : 'python' }
+                'api_paste_format' : 'python' }  #'api_paste_format' : 'python' << is not implemented in backend
         get_uri  = self.base_uri + '/mowers/7/locations'
         requests.post(get_uri, data = data)
 
 
-    # def post_pic(self, position, pic64):
-    #     """
-    #     send picture and position of mower to the backend
-    #     """
-    #     x = position.split(":")[1]
-    #     y = position.split(":")[2]
-    #     data = {"x" : x,
-    #             "y" : y,
-    #             "image" : pic64 }
-    #     get_uri  = self.base_uri + '/mowers/1/images'
-    #     requests.post(get_uri, data = data)
+    def post_pic(self, x, y, pic64):
+         """
+         send picture and position of mower to the backend
+         """
+         #x = position.split(":")[1]
+         #y = position.split(":")[2]
+         data = {"x" : x,
+                 "y" : y,
+                 "image" : pic64 }
+         get_uri  = self.base_uri + '/mowers/1/images'
+         requests.post(get_uri, data = data)
 
 
     def order(self, message, payload = None):
@@ -126,6 +126,7 @@ class Backend(Thread):
                 ###
                 ### <<< send image here >>>
                 ###
+                self.post_pic(x, y, b64_img)
 
             elif message == 'EXIT':
                 running = False
