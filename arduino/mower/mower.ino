@@ -54,7 +54,7 @@ void setup() {
  */
 void loop() {
   doSerialTick(true);
-  
+
   switch(currentState){
     case(STANDBY):
       activateStandbyLEDs();

@@ -142,7 +142,7 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
   else{
     Serial.println("Recieved wrong parameter in: rotateByDegrees");
   }
-  stopMotors();
+  stopMotorsMS(200);
 }
 
 //Takes the amount of cirles you want to make the mower turn and does so with the initial gyro value as start and end point
@@ -257,57 +257,53 @@ void setEncoderPwm(int encoderNumber, int pwmValue){
 
 
 
-bool moveTest(direction_t direction, int speed)
+bool moveTest(direction_t mowerDirection, int motorspeed)
 {
   bool errorEncoutered = false;
 
-  setCurrentDirection(direction);
+  setCurrentDirection(mowerDirection);
   int leftSpeed = 0;
   int rightSpeed = 0;
-  
+
   if(getCurrentDirection() == FORWARD){
+
     activateManualForwardLEDs();
-    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = speed;
+    leftSpeed = -motorspeed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = motorspeed;
   }
   else if(getCurrentDirection() == BACKWARD){
+
     activateManualBackwardLEDs();
-    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = -speed;
+    leftSpeed = motorspeed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -motorspeed;
   }
   else if(getCurrentDirection() == LEFT){
+
     activateManualLeftLEDs();
-    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = -speed;
+    leftSpeed = -motorspeed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -motorspeed;
   }
   else if(getCurrentDirection() == RIGHT){
+
     activateManualRightLEDs();
-    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = speed;
+    leftSpeed = motorspeed * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = motorspeed;
   }
   else if(getCurrentDirection() == NONE) {
+
     leftSpeed = 0;
     rightSpeed = 0;
   }
+;
+  driveTime(1000, getCurrentDirection(), motorspeed);
 
-  setEncoderPwm(1, leftSpeed);
-  setEncoderPwm(2, rightSpeed);
-
-  moveForAmountOfTime(1000);
-
-  if(Encoder_1.getCurPwm() != leftSpeed || Encoder_2.getCurPwm() != rightSpeed || getCurrentDirection() != direction){
-    Serial.println("TEST1");
+  if(Encoder_1.getCurPwm() != leftSpeed || Encoder_2.getCurPwm() != rightSpeed || getCurrentDirection() != mowerDirection){
     errorEncoutered = true;
   }
 
-  setEncoderPwm(1, 0);
-  setEncoderPwm(2, 0);
-  setCurrentDirection(NONE);
-
-  moveForAmountOfTime(1000);
+  stopMotorsMS(1000);
 
   if(Encoder_1.getCurPwm() != 0 || Encoder_2.getCurPwm() != 0 || getCurrentDirection() != NONE){
-    Serial.println("TEST2");
     errorEncoutered = true;
   }
 

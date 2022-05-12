@@ -74,9 +74,9 @@ void readSerialData(bool ack){
  */
 void checkAndSetRecievedMessage(String message){
   char* token;
-  char buf[message.length()];
+  char buf[message.length()+1];
 
-  message.toCharArray(buf, message.length());
+  message.toCharArray(buf, message.length() + 1);
   token = strtok(buf, delimiter);
   
   setSerialDataFirstPart(token);

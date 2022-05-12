@@ -24,9 +24,7 @@ void doAutonomousTick(){
 
 //If line follower triggered, do this
 void doAutonomousLineFollowerProcedure(){
-  stopMotors();
-
-  stopMotorsSeconds(1);
+  stopMotorsMS(1000);
 
   calculateAndUpdateXAndYCoordinates();
 
@@ -35,9 +33,7 @@ void doAutonomousLineFollowerProcedure(){
 
 //If ultra sonic sensor triggered, do this
 void doAutonomousUltraSonicProcedure(){
-  stopMotors();
-
-  stopMotorsSeconds(1);
+  stopMotorsMS(1000);
 
   calculateAndUpdateXAndYCoordinates();
   
@@ -56,15 +52,13 @@ void doReverseProcedure(){
 
   calculateAndUpdateXAndYCoordinates();
   
-  stopMotors();
-
-  stopMotorsSeconds(1);
+  stopMotorsMS(1000);
 
   activateAutonomousLEDs();
   
   rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
-  stopMotorsSeconds(random(1, 3));
-  stopMotors();
+  stopMotorsMS(random(1000, 3000));
+
   activateAutonomousLEDs();
 }
 
@@ -75,12 +69,11 @@ void doReverseProcedure(){
  * After a set time-out value, the mower continoues anyway.
  */
 void waitForImageCaptured(){
-  stopMotors();
   bool doLoop = true;
   long timeToCapture = millis() + CAMERA_CAPTURE_TIME;
   
   while(doLoop){
-    stopMotors();
+    stopMotorsMS(1000);
     doSerialTick(false);
     if(recievedCaptureAck()){
       doLoop = false;
@@ -100,10 +93,8 @@ int doAutonomousLineFollowerProcedureTest(){
   int errorCounter = 0;
 
   if(!resetStateLEDsTest()){errorCounter ++;}
-  
-  stopMotors();
 
-  stopMotorsSeconds(1);
+  stopMotorsMS(1000);
 
   errorCounter += doReverseProcedureTest();
 
@@ -114,20 +105,19 @@ int doReverseProcedureTest(){
   int errorCounter = 0;
 
   if(!resetStateLEDsTest()){errorCounter ++;}
-  
-  stopMotors();
 
-  stopMotorsSeconds(1);
+  stopMotorsMS(1000);
 
   driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   if(!resetStateLEDsTest()){errorCounter ++;}
 
+  stopMotorsMS(random(1000, 3000));
   
-  stopMotorsSeconds(random(1, 3));
   rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
-  stopMotors();
-  stopMotorsSeconds(random(1, 3));
+
+  stopMotorsMS(random(1000, 3000));
+  
   if(!resetStateLEDsTest()){errorCounter ++;}
   
   return errorCounter;
@@ -141,8 +131,8 @@ bool waitForImageCapturedTest(){
   long timeToCapture = millis() + CAMERA_CAPTURE_TIME;
   
   while(doLoop){
-    inDiagModuleLED(2);
-    stopMotors();
+    inAutonomousDiagModuleLED();
+    stopMotorsMS(1000);
     if(!resetStateLEDsTest()){resetLedFailed = true;}
     if(millis() > timeToCapture) {
       doLoop = false;
@@ -162,8 +152,8 @@ int doAutonomousUltraSonicProcedureTest(){
   int errorCounter = 0;
 
   if(!resetStateLEDsTest()){errorCounter++;}
-  stopMotors();
-  stopMotorsSeconds(1);
+
+  stopMotorsMS(1000);
   
   if(!waitForImageCapturedTest()){
     errorCounter += 1;
@@ -187,20 +177,18 @@ int doAutonomousTickTest(){
   errorCounter += activateAutonomousForwardLEDsTest();
   
   move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
-  inDiagModuleLED(2);
+  inAutonomousDiagModuleLED();
 }
 
 bool autonomousDiagnosticTestSuccess(){
-  
-  
-  
-  int timeToTestAutonomousState = 15000;
-  long timeToStopTest = millis() + timeToTestAutonomousState;
+  long timeToStopTest = millis() + TIME_TO_TEST_AUTONOMOUS_STATE_MS;
   int amountOfErrors = 0;
 
   while(millis() < timeToStopTest){
     amountOfErrors += doAutonomousTickTest();
   }
+
+  stopMotorsMS(1000);
 
   if(amountOfErrors > 0){
     return false;

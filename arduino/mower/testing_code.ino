@@ -14,14 +14,14 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
   
 
   rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -29,13 +29,13 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -43,13 +43,13 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(90, LEFT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -57,13 +57,13 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
 
 
   rotateByDegrees(180, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -71,11 +71,11 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -83,11 +83,11 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -95,11 +95,11 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(90, RIGHT, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
   
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   driveDistance(500, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
@@ -107,7 +107,7 @@ void doDrivingInASquareTest(){
   
   sendSerialCoordinates();
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
   
   
   while(true){
@@ -124,12 +124,11 @@ void testSpeedOfRobot(){
   else{
     TESTfirstTapeFound = true;
     Serial.println("Tape found, stopping in 3 seconds");
-    stopMotors();
     resetEncoderValues();
-    stopMotorsSeconds(3);
+    stopMotorsMS(3000);
 
     //move(FORWARD, MAX_MOTOR_SPEED);
-    //stopMotorsSeconds(0.5);
+    //stopMotorsMS(0.5);
     
 //    while(!TESTsecondTapeFound){
 //      move(FORWARD, MAX_MOTOR_SPEED);
@@ -156,15 +155,15 @@ void testSpeedOfRobot(){
 void doRotationTest(){
   rotateByDegrees(90, LEFT, MAX_MOTOR_SPEED);
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(180, RIGHT, MAX_MOTOR_SPEED);
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(270, RIGHT, MAX_MOTOR_SPEED);
 
-  stopMotorsSeconds(3);
+  stopMotorsMS(3000);
 
   rotateByDegrees(360, LEFT, MAX_MOTOR_SPEED);
 }

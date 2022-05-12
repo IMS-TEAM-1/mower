@@ -2,11 +2,11 @@
  * Here, some utility functions can be found.
  */
 
-void stopMotorsSeconds(float seconds) {
-  if(seconds < 0.0){
-    seconds = 0.0;
+void stopMotorsMS(int ms) {
+  if(ms < 0.0){
+    ms = 0.0;
   }
-  long endTime = millis() + seconds * 1000;
+  long endTime = millis() + ms;
   while(millis() < endTime) stopMotors();
 }
 
@@ -15,13 +15,6 @@ void _loop() {
   Encoder_2.loop();
     
   gyro.update();
-}
-
-void moveForAmountOfTime(int ms){
-  int endTime = millis() + ms;
-  while(millis() < endTime){
-    _loop();
-  }
 }
 
 void resetStateLEDs(){
@@ -40,6 +33,11 @@ void resetStateLEDs(){
 
 void deactivateLEDs(){
   rgbled_0.setColor(0, 0, 0, 0);
+  rgbled_0.show();
+}
+
+void activateAllLEDsRGB(int r, int g, int b){
+  rgbled_0.setColor(0, r, g, b);
   rgbled_0.show();
 }
 
@@ -172,6 +170,12 @@ void inDiagModuleLED(int index){
   for(int i = 1; i <= index; i++){
     rgbled_0.setColor(i, 100, 0, 100);
   }
+  rgbled_0.show();
+}
+
+void inAutonomousDiagModuleLED(){
+  rgbled_0.setColor(1, 100, 0, 100);
+  rgbled_0.setColor(5, 100, 0, 100);
   rgbled_0.show();
 }
 

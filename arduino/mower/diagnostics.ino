@@ -196,7 +196,9 @@ void doJoystickDiag(){
 void doMotorcontrolDiag(){
   bool moduleSucceeded = false;
 
-  stopMotors();
+  stopMotorsMS(1000);
+
+  activateAllLEDsRGB(100, 0, 100);
 
   if(getCurrentJoysticSpeedLeftMotor() == 0 && getCurrentJoysticSpeedRightMotor() == 0 && getCurrentAngleJoystick() == 0 && getCurrentDirection() == NONE){
     if(moveTest(FORWARD, 100) == false){
@@ -219,29 +221,10 @@ void doMotorcontrolDiag(){
 void doSensorsDiag(){
   bool moduleSucceeded = false;
 
-  if(ultraSonicSensor.distanceCm() >= 0 && ultraSonicSensor.distanceCm() <= 100){
-    if(getLineFollowerTriggered()){
-      driveDistance(100, BACKWARD, 100);
-      stopMotors();
-      
-      if(getLineFollowerTriggered()){
-        driveDistance(100, BACKWARD, 100);
-        stopMotors();
-        
-        if(getLineFollowerTriggered()){
-          driveDistance(100, BACKWARD, 100);
-          stopMotors();
-          
-          if(!getLineFollowerTriggered()){
-            moduleSucceeded = true;
-          }
-        }
-      }
-      else{
-        moduleSucceeded = true;
-      }
-    }
-    else{
+  if(doLinefollowerSensorDiag()){
+    Serial.println("1");
+    if(doUltrasonicSensorDiag()){
+      Serial.println("2");
       moduleSucceeded = true;
     }
   }
@@ -249,16 +232,80 @@ void doSensorsDiag(){
   if(!moduleSucceeded){storedFaultCodes.enqueue(7);}
 }
 
+bool doUltrasonicSensorDiag(){
+  bool isFunctional = false;
+  
+  if(ultraSonicSensor.distanceCm() >= 0 && ultraSonicSensor.distanceCm() < ULTRA_SONIC_SENSOR_MAX_VALUE){
+    isFunctional = true;
+  }
+  
+  else{  //Is 400 when cable is unplugged but 400 can be read when plugged in as well
+    bool doLoop = true;
+    long timeToStopTest = millis() + TIME_TO_TEST_ULTRA_SONIC_SENSOR_MS;
+
+    while(doLoop){
+      if(ultraSonicSensor.distanceCm() >= 0 && ultraSonicSensor.distanceCm() < ULTRA_SONIC_SENSOR_MAX_VALUE){
+        isFunctional = true;
+        doLoop = false;
+      }
+      if(millis() >= timeToStopTest){
+        doLoop = false;
+      }
+      rotateByDegrees(50, RIGHT, MAX_MOTOR_SPEED);
+    }
+    
+  }
+
+  stopMotorsMS(1000);
+
+  return isFunctional;
+}
+
+//If the mower is above sensor when testing, move it and check again. If always triggered, probably something wrong with cable or sensor
+bool doLinefollowerSensorDiag(){
+  bool isFunctional = false;
+  
+  if(getLineFollowerTriggered()){
+    rotateByDegrees(30, LEFT, HALF_MOTOR_SPEED);
+    stopMotorsMS(1000);
+    
+    if(getLineFollowerTriggered()){
+      rotateByDegrees(30, LEFT, HALF_MOTOR_SPEED);
+      stopMotorsMS(1000);
+      
+      if(getLineFollowerTriggered()){
+        rotateByDegrees(30, LEFT, HALF_MOTOR_SPEED);
+        stopMotorsMS(1000);
+        
+        if(!getLineFollowerTriggered()){
+          isFunctional = true;
+        }
+      }
+      else{
+        isFunctional = true;
+      }
+    }
+    else{
+      isFunctional = true;
+    }
+  }
+  else{
+    isFunctional = true;
+  }
+
+  return isFunctional;
+}
+
 void doSerialComDiag(){
   bool moduleSucceeded = false;
 
   clearStoredMessages();
 
-  if(getRecievedSerialDataFirstPart == "" && getRecievedSerialDataSecondPart == ""){
+  if(getRecievedSerialDataFirstPart() == "" && getRecievedSerialDataSecondPart() == ""){
     String s_temp = "DIAGNOSTIC_SERIAL:TEST";
     checkAndSetRecievedMessage(s_temp);
 
-    if(getRecievedSerialDataFirstPart == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart == "TEST"){
+    if(getRecievedSerialDataFirstPart() == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart() == "TEST"){
       moduleSucceeded = true;
     }
   }
