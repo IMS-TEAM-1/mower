@@ -84,22 +84,20 @@ class Backend(Thread):
         """
         data = {'key1' : x,
                 'key2' : y,
-                'api_paste_format' : 'python' }
+                }
         get_uri  = self.base_uri + '/mowers/1/locations'
         requests.post(get_uri, data = data)
 
 
-    # def post_pic(self, position, pic64):
-    #     """
-    #     send picture and position of mower to the backend
-    #     """
-    #     x = position.split(":")[1]
-    #     y = position.split(":")[2]
-    #     data = {"x" : x,
-    #             "y" : y,
-    #             "image" : pic64 }
-    #     get_uri  = self.base_uri + '/mowers/1/images'
-    #     requests.post(get_uri, data = data)
+    def post_pic(self, x, y, pic64):
+        """
+        send picture and position of mower to the backend
+        """
+        data = {"x" : x,
+                "y" : y,
+                "image" : pic64 }
+        get_uri  = self.base_uri + '/mowers/1/images'
+        requests.post(get_uri, data = data)
 
 
     def order(self, message, payload = None):
@@ -150,10 +148,8 @@ class Backend(Thread):
                     b64_img  = self.encode_picture_to_base64(filepath)
                     pos      = last_known_position
                     if backend_pinged:
-                        pass
-                        ###
-                        ### <<< send image here >>>
-                        ###
+                        (image_x, image_y) = pos
+                        self.post_pic(image_x, image_y, b64_img)
                     else:
                         print('BACKEND: Not posting postion because ping failed.')
 
