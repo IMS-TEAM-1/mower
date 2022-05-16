@@ -1,3 +1,9 @@
+/*
+ * The following module contains code which handles the communication to and from the Pi.
+ * It periodically reads the serial bus and stores what ever it recieves and then does the appropiate action depending on what it recieved.
+ */
+
+
 //Global variables used to store the latest messages recieved, time when the mower last got updated and how many missed messages we have missed
 String recievedMessage;
 String recievedMessageFirstPart;
@@ -42,6 +48,7 @@ void doSerialTick(bool ack){
       numberOfTicksMissed = 0;
     }
   }
+  clearStoredMessages();
 }
 
 //As long as there are data available on the serial bus, read and store it, then acknowelge it to the Pi

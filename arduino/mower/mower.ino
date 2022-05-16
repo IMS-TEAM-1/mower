@@ -3,8 +3,8 @@
 #include <SoftwareSerial.h>
 #include <MeAuriga.h>
 #include <Math.h>
-#include "config.h"
 #include <ArduinoQueue.h>
+#include "config.h"
 
 /*
  * Following are variables used as global variables which determine what the mower shoud do.
@@ -51,25 +51,25 @@ void setup() {
  * Autonomous is the self-driving function and the code for that can be found in autonomous.ino.
  * Manual is the state where you MANUALLY control the mower via bluetooth.
  * Diagnostic is when the mower shall perform "self-diagnostics"
+ * 
  */
 void loop() {
   doSerialTick(true);
-
+  
   switch(currentState){
     case(STANDBY):
-      activateStandbyLEDs();
+      resetStateLEDs();
       stopMotors();
       break;
     case(AUTONOMOUS):
       doAutonomousTick();
       break;
     case(MANUAL):
+      resetStateLEDs();
       doManualControlTick();
       break;
     case(DIAGNOSTIC):
       doSelfDiagnosticTest();
       break;
   }
-
-  clearStoredMessages();
 }

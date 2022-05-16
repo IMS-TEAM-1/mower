@@ -1,3 +1,10 @@
+/*
+ * All functions regarding the motors and how they are controlled are found here.
+ * Basic operations as moving in a specific direction can be found but also more complex such as moving for a specific amount of millimeters, milliseconds or doing specific procedures.
+ * Rotating functions can also be found here.
+ */
+
+
 direction_t currentDirection = NONE;
 
 //Sets up PWM-control for motors
@@ -253,8 +260,28 @@ void setEncoderPwm(int encoderNumber, int pwmValue){
   }
 }
 
+void stopMotorsMS(int ms) {
+  if(ms < 0.0){
+    ms = 0.0;
+  }
+  long endTime = millis() + ms;
+  while(millis() < endTime) stopMotors();
+}
+
+void _loop() {
+  Encoder_1.loop();
+  Encoder_2.loop();
+    
+  gyro.update();
+}
 
 
+
+/*
+ * 
+ * DIAGNOSTIC CODE
+ * 
+ */
 
 
 bool moveTest(direction_t mowerDirection, int motorspeed)

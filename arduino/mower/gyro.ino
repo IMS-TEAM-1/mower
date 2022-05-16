@@ -19,11 +19,13 @@ float getGyroZ(){
   return gyro.getAngle(3);
 }
 
+
 void gyroPrintValues(){
   Serial.println("Gyro X: " + String(getGyroX()));
   Serial.println("Gyro Y: " + String(getGyroY()));
   Serial.println("Gyro Z: " + String(getGyroZ()) + "\n");
 }
+
 
 void setGyroValueAtStart(float value){
   gyroValueAtStart = value;
@@ -53,6 +55,7 @@ float getGyroValueAtStart(){
 float getGyroValueAtEnd(){
   return gyroValueAtEnd;
 }
+
 
 float getAverageGyroValue(){
   return ((getGyroValueAtStart() + getGyroValueAtEnd()) * 0.5);

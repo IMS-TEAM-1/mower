@@ -1,21 +1,9 @@
 /*
- * Here, some utility functions can be found.
+ * This module contain various LED-functions
+ * The LEDs are found ontop of the Arduino board.
+ * The LEDs are used to indicate what state the mower is in (STANDBY, AUTONOMOUS, MANUAL or DIAGNOSTIC).
+ * 
  */
-
-void stopMotorsMS(int ms) {
-  if(ms < 0.0){
-    ms = 0.0;
-  }
-  long endTime = millis() + ms;
-  while(millis() < endTime) stopMotors();
-}
-
-void _loop() {
-  Encoder_1.loop();
-  Encoder_2.loop();
-    
-  gyro.update();
-}
 
 void resetStateLEDs(){
   switch(currentState){
@@ -26,7 +14,7 @@ void resetStateLEDs(){
       activateAutonomousLEDs();
       break;
     case(MANUAL):
-      deactivateLEDs();
+      activateManualLEDs();
       break;
   }
 }
@@ -43,6 +31,11 @@ void activateAllLEDsRGB(int r, int g, int b){
 
 void activateStandbyLEDs(){
   rgbled_0.setColor(0, 0, 0, 100);
+  rgbled_0.show();
+}
+
+void activateManualLEDs(){
+  rgbled_0.setColor(0, 100, 100, 0);
   rgbled_0.show();
 }
 
@@ -94,7 +87,13 @@ void activateManualLeftLEDs(){
 
 
 
-//Diagnostics code
+/*
+ * 
+ * DIAGNOSTIC CODE
+ * 
+ */
+
+
 int deactivateLEDsTest(){
   int errorCounter = 0;
 

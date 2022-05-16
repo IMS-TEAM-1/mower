@@ -4,6 +4,7 @@
  * However, if either the ultrasonic sensor or IR-sensors gets triggered, then the mower should act accordingly.
  * 
  * This function is called continously when in autonomous-state.
+ * 
  */
 void doAutonomousTick(){
   //If any of the sensors are triggered, stop, and do the appropiate procedure
@@ -14,12 +15,10 @@ void doAutonomousTick(){
     doAutonomousLineFollowerProcedure();
   }
 
-  //If we should send our location to the Pi, do that
-  doLocalizationTick();  
+  doLocalizationTick();  //If we should send our location to the Pi, do that
 
-  //Else, always move forward
   activateAutonomousForwardLEDs();
-  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
+  move(FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR); //Always move forward
 }
 
 //If line follower triggered, do this
@@ -47,18 +46,16 @@ void doAutonomousUltraSonicProcedure(){
 //This function simply does a simple reversing manuever
 void doReverseProcedure(){
   activateAutonomousLEDs();
-
   driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   calculateAndUpdateXAndYCoordinates();
   
   stopMotorsMS(1000);
-
   activateAutonomousLEDs();
   
   rotateByDegrees(random(110, 250), randomLeftOrRight(), MOTOR_SPEED_AUTONOMOUS_RIGHT_OR_LEFT * PERCENTAGE_TO_PWM_FACTOR); 
+  
   stopMotorsMS(random(1000, 3000));
-
   activateAutonomousLEDs();
 }
 
@@ -87,7 +84,13 @@ void waitForImageCaptured(){
 }
 
 
-
+/*
+ * 
+ * DIAGNOSTIC CODE
+ * 
+ * The following functions test specific functions found in this module.
+ * 
+ */
 
 int doAutonomousLineFollowerProcedureTest(){
   int errorCounter = 0;

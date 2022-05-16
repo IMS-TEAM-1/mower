@@ -3,7 +3,10 @@
  * It is here most parameters are changed when changed behaviour of the mower is wanted.
  */
 
-//Typedef enums
+/*
+ * Typedef enums
+ */
+
 //What state the mower is in right now and what direction the mower should go for when moving
 typedef enum {
   STANDBY,
@@ -47,16 +50,24 @@ typedef enum {
   Diag_Autonomous,
   Diag_Done} diagntosicModule_t;
 
+
+/*
+ * Defines
+ */
+
 //Serial defines
 #define SERIAL_UPDATE_FREQUENCY_MS 50
 #define MAX_ALLOWED_MISSED_SERIAL_TICKS 10
+
 
 //Sensor ports
 #define ULTRASONIC_SENSOR_PORT 10
 #define LINE_FOLLOWER_SENSOR_PORT 9
 
+
 //Distance from object it should not detect and avoid
 #define ULTRA_SONIC_SENSOR_DISTANCE_CM 10
+
 
 //Motor constants
 #define LOCALIZATION_CIRCLE_ROTATION_OFFSET 90.0
@@ -86,8 +97,10 @@ typedef enum {
 
 #define ENCODER_LIBRARY_PWM_OFFSET_VALUE 2
 
+
 //Camera capture time, in ms
 #define CAMERA_CAPTURE_TIME 10000
+
 
 //Diagnostics constans
 #define MAX_AMOUNT_OF_FAULT_CODES 20

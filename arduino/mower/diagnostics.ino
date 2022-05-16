@@ -1,5 +1,5 @@
 /*
- * This function is ran when the state of the mower is set to "diagnostic".
+ * This function is run when the state of the mower is set to "diagnostic".
  * It checks the vital parts of the mower system and returns the functions that failes (if any did)
  * It firsts acks the "DIAGNOSTIC"-message to confirm the Pi that the mower is indeed running a diagnostics.
  * Afterwards, it does testing of each module and returns a string designed as "DIAGNOSTIC:good" if everythis is well.

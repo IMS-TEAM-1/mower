@@ -9,7 +9,8 @@ void isr_process_encoder1(void)
 {
   if(digitalRead(Encoder_1.getPortB()) == 0){
     Encoder_1.pulsePosMinus();
-  }else{
+  }
+  else{
     Encoder_1.pulsePosPlus();
   }
 }
@@ -21,6 +22,7 @@ void isr_process_encoder2(void)
     Encoder_2.pulsePosPlus();
   }
 }
+
 
 void printEncoderPulseValues(){
   Serial.println("Encoder 1: ");
@@ -43,6 +45,7 @@ void setEncoder1Pulse(long pos){
 void setEncoder2Pulse(long pos){
   Encoder_2.setPulsePos(pos);
 }
+
 
 void resetEncoderValues(){
   Encoder_1.setPulsePos(0);

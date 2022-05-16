@@ -1,3 +1,13 @@
+/*
+ * All dead-reckoning functionality is found within this module.
+ * The concept of how it works is that the encoders in the motors update the pulses stored in the program when the wheels are turning.
+ * Based on what values the encoders give, is how the position is determined.
+ * This method is quite optimized for this specific robot and has close to millimeter accuracy.
+ * However, when used for a longer period of time, the position deviates.
+ * The solution to this would either be complementary GPS/GNSS, better encoders or some other way of validating the rough position to calibrate the encoder values.
+ */
+
+
 //Coordinates storing where the robot is
 int coordinateX = 0;
 int coordinateY = 0;
