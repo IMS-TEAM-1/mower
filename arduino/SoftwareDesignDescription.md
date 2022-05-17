@@ -130,7 +130,7 @@ void doSelfDiagnosticTest(){
   }
   ...
 }
-
+```
 
 ## "encoder.ino"
 
