@@ -1,6 +1,9 @@
 """
-Module for communicating with the Arduino
-motor control and sensor hub.
+Module for communicating with the Arduino motor control and sensor hub.
+Communication is done over serial connection (using pyserial).
+Instructions are received through a queue that is an argument to the
+constructor. The main loop being run (should be as a thread) is the
+function run().
 """
 
 
@@ -9,24 +12,34 @@ from queue     import Queue
 
 import time
 import serial
-import select
+# import select
 
 class Arduino(Thread):
     """
-    Just a class.
+    Class for managing communication with the Arduino over serial connection.
+    Runs as a thread, invoked by a controller.
     """
+
     def __init__(self, device, baud, timeout, q_to_controller):
+        """
+        Constructor for the class managing communication with the Arduino.
+        Details for the parameters are found in the pyserial library.
+        """
         Thread.__init__(self)
         self.ser                = serial.Serial(device,
                                                 baud,
                                                 timeout = timeout)
         self.ser.reset_input_buffer()
 
-        self.orders             = Queue(maxsize = 10)
+        self.__orders           = Queue(maxsize = 10)
         self.q_to_controller    = q_to_controller
 
     def __del__(self):
-        pass
+        """
+        Close the connection to the serial device.
+        """
+        self.ser.close()
+
 
 
     def hello(self):
@@ -51,13 +64,20 @@ class Arduino(Thread):
     def send_serial(self, message):
         """
         Send a message over the serial connection.
+
+        Parameters:
+            message (str): Message to be sent. Newlines are added to it.
         """
         self.ser.write((message + '\r\n').encode('ascii'))
 
 
-    def receive_serial(self):
+    def receive_serial(self) -> str:
         """
-        Receive a message from the serial connection.
+        Receive a message from the serial connection. Reads until
+        newline character(s) are found.
+
+        Returns:
+            A string with newline characters stripped.
         """
         line = self.ser.readline()
         line = str(line.decode('utf-8').strip())
@@ -84,12 +104,16 @@ class Arduino(Thread):
             ard.order( ('AUTONOMOUS', None) )
             ...
             ard.order( ('MANUAL', 'FORWARD') )
+
+        Parameters:
+            message (str) : The message to send to controller.
+            payload : Optional argument. Could be of any type.
         """
-        self.orders.put( (message, payload) )
+        self.__orders.put( (message, payload) )
 
 
 
-    def to_controller(self, message , payload = None):
+    def __to_controller(self, message , payload = None):
         """
         Complement to order(), to be used from within this module.
         Listener is other end of class variable q_to_controller
@@ -99,10 +123,9 @@ class Arduino(Thread):
 
     def run(self):
         """
-        This is the main loop of the arduino.
-        Because we are reading from two sources
-        (orders and serial connection) we must
-        periodically wake up and check both.
+        This is the main loop of the arduino. Because it's reading from
+        two sources (orders and serial connection) it must periodically
+        wake up and check both.
         """
 
         period = 0.050 # 50 ms == 20 Hz
@@ -122,7 +145,7 @@ class Arduino(Thread):
             #       Type:   int
             #       Return the number of bytes in the receive buffer.
             serial_available    = self.ser.in_waiting > 0
-            q_elem_available    = not self.orders.empty()
+            q_elem_available    = not self.__orders.empty()
 
 
 
@@ -130,7 +153,7 @@ class Arduino(Thread):
             ##      MESSAGE RECEIVED FROM MAIN    ##
             ########################################
             if q_elem_available:
-                (message, payload) = self.orders.get()
+                (message, payload) = self.__orders.get()
 
                 if message == 'EXIT':
                     running = False
@@ -197,14 +220,14 @@ class Arduino(Thread):
 
                 # The arduino tells us it found an obstacle
                 if ser_message == 'CAPTURE':
-                    self.to_controller('CAPTURE')
+                    self.__to_controller('CAPTURE')
                     ard_state = 'CAPTURE'
 
                 # Deal with 'POS:123,78989'
                 elif ser_message[0 : 3] == 'POS':
                     [_, coord_str]  = ser_message.split(':')
                     [x,y]           = coord_str.split(',')
-                    self.to_controller( 'POS', (int(x), int(y)) )
+                    self.__to_controller( 'POS', (int(x), int(y)) )
 
                 else:
                     # We did not catch this message
