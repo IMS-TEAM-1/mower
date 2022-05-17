@@ -521,6 +521,6 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 
 # "Maximum"
 
-*"The Software Design Document shall contain an architectural overvire of the system and its sub components." - An overview of the Arduino/mower is given here, a complete overview will be done in another document.
-"The source code shall be traceable to respective low level requirement." - Vital parts explained in this document.
-"Test Cases shall be defined for all requirements and a test report produced" - Explained under the heading "diagnostic.ino". This is solved by self-diagnostics which either returns "DIAGNOSTIC:ok" or for example "DIAGNOSTIC:2,3,5" if module 2, 3, and 5 failed, making this the "report".
+* "The Software Design Document shall contain an architectural overvire of the system and its sub components." - An overview of the Arduino/mower is given here, a complete overview will be done in another document.
+* "The source code shall be traceable to respective low level requirement." - Vital parts explained in this document.
+* "Test Cases shall be defined for all requirements and a test report produced" - Explained under the heading "diagnostic.ino". This is solved by self-diagnostics which either returns "DIAGNOSTIC:ok" or for example "DIAGNOSTIC:2,3,5" if module 2, 3, and 5 failed, making this the "report".
