@@ -23,20 +23,20 @@ void doAutonomousTick(){
 
 //If line follower triggered, do this
 void doAutonomousLineFollowerProcedure(){
-  stopMotorsMS(1000);
+  stopMotorsMS(1000); //Make sure that the mower has stopped
 
-  calculateAndUpdateXAndYCoordinates();
+  calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
 
-  doReverseProcedure();
+  doReverseProcedure(); //Back up, rotate, and continue moving autonomously
 }
 
 //If ultra sonic sensor triggered, do this
 void doAutonomousUltraSonicProcedure(){
-  stopMotorsMS(1000);
+  stopMotorsMS(1000); //Make sure that the mower has stopped
 
-  calculateAndUpdateXAndYCoordinates();
+  calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
   
-  sendSerialUltraSonicTriggered();
+  sendSerialUltraSonicTriggered(); //Back up, rotate, and continue moving autonomously
   
   waitForImageCaptured();
 
@@ -71,7 +71,7 @@ void waitForImageCaptured(){
   
   while(doLoop){
     stopMotorsMS(1000);
-    doSerialTick(false);
+    doSerialTick(false);  //We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
     if(recievedCaptureAck()){
       doLoop = false;
     }

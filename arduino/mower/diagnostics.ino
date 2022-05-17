@@ -16,85 +16,85 @@ void doSelfDiagnosticTest(){
   }
   
   while(currentState == DIAGNOSTIC){
-    resetStateLEDsTest();
-    switch(moduleCurrentlyDiagnosing){
-      case(Diag_Main):
-        inDiagModuleLED(1);
-        doMainDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Encoder;
-        break;
-        
-      case(Diag_Encoder):
-        inDiagModuleLED(2);
-        doEncoderDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Gyro;
-        break;
-        
-      case(Diag_Gyro):
-        inDiagModuleLED(3);
-        doGyroDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Localization;
-        break;
+  resetStateLEDsTest();
+  switch(moduleCurrentlyDiagnosing){
+    case(Diag_Main):
+      inDiagModuleLED(1);
+      doMainDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Encoder;
+      break;
+      
+    case(Diag_Encoder):
+      inDiagModuleLED(2);
+      doEncoderDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Gyro;
+      break;
+      
+    case(Diag_Gyro):
+      inDiagModuleLED(3);
+      doGyroDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Localization;
+      break;
 
-      case(Diag_Localization):
-        inDiagModuleLED(4);
-        doLocalizationDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Joystick;
-        break;
-        
-      case(Diag_Joystick):
-        inDiagModuleLED(5);
-        doJoystickDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Motorcontrol;
-        break;
+    case(Diag_Localization):
+      inDiagModuleLED(4);
+      doLocalizationDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Joystick;
+      break;
+      
+    case(Diag_Joystick):
+      inDiagModuleLED(5);
+      doJoystickDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Motorcontrol;
+      break;
 
-        
-      case(Diag_Motorcontrol):
-        inDiagModuleLED(6);
-        doMotorcontrolDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Sensors;
-        break;
-        
-      case(Diag_Sensors):
-        inDiagModuleLED(7);
-        doSensorsDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_SerialCom;
-        break;
-        
-      case(Diag_SerialCom):
-        inDiagModuleLED(8);
-        doSerialComDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Autonomous;
-        break;
-        
-      case(Diag_Autonomous):
-        inDiagModuleLED(9);
-        doAutonomousDiag();
-        delay(1000);
-        moduleCurrentlyDiagnosing = Diag_Done;
-        break;
-        
-       case(Diag_Done):
-        if(storedFaultCodes.isEmpty()){
-          sendDiagnosticSuccess();
-          doDiagnosticDoneLEDSprial(true);
-        }
-        else{
-          sendDiagnosticFailed(storedFaultCodes);
-          doDiagnosticDoneLEDSprial(false);
-        }
-        moduleCurrentlyDiagnosing = Diag_Main;
-        currentState = STANDBY;
-        break;
+      
+    case(Diag_Motorcontrol):
+      inDiagModuleLED(6);
+      doMotorcontrolDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Sensors;
+      break;
+      
+    case(Diag_Sensors):
+      inDiagModuleLED(7);
+      doSensorsDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_SerialCom;
+      break;
+      
+    case(Diag_SerialCom):
+      inDiagModuleLED(8);
+      doSerialComDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Autonomous;
+      break;
+      
+    case(Diag_Autonomous):
+      inDiagModuleLED(9);
+      doAutonomousDiag();
+      delay(1000);
+      moduleCurrentlyDiagnosing = Diag_Done;
+      break;
+      
+     case(Diag_Done):
+      if(storedFaultCodes.isEmpty()){
+        sendDiagnosticSuccess();
+        doDiagnosticDoneLEDSprial(true);
       }
+      else{
+        sendDiagnosticFailed(storedFaultCodes);
+        doDiagnosticDoneLEDSprial(false);
+      }
+      moduleCurrentlyDiagnosing = Diag_Main;
+      currentState = STANDBY;
+      break;
+    }
    }
 }
 

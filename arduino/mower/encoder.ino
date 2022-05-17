@@ -55,5 +55,5 @@ void resetEncoderValues(){
 
 //When calculating distance travelled, it is better to calculate the average between the encoders to lower the error margin
 float getEncoderAverage(){
-  return (((-1* getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5);
+  return (((-1* getEncoder1Pulses()) + getEncoder2Pulses() ) * 0.5); //*-1 since the first motor is inverted physically.
 }
