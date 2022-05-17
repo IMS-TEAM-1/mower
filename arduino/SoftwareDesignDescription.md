@@ -365,7 +365,7 @@ These are not used in the main code.
 
 ## "#M1.1"
 
-"The Mower shall be capable of running autonomously within a confined area".
+* "The Mower shall be capable of running autonomously within a confined area".
 
 How the Arduino solves this is by utilizing the two IR/line-follower sensors mounted in the front of the robot.
 These work by looking at a reflective surface and reads whether if the IR light sent can be read.
@@ -401,7 +401,7 @@ bool getLineFollowerTriggered(){
 
 ## "#M1.2"
 
-"The Mower shall be able to avoid collision objects during autonomous operation."
+* "The Mower shall be able to avoid collision objects during autonomous operation."
 
 Our solves this thanks to the ultrasonic sensor.
 It sends out short bursts which can be detected and calulated based on the ToF and therefore calulate the distance between the sensor and the mower.
@@ -461,7 +461,7 @@ void waitForImageCaptured(){
 
 ## "#M1.3"
 
-"The Mower shall be able to accept and execute drive commands given by a remove device."
+* "The Mower shall be able to accept and execute drive commands given by a remove device."
 
 This is solved indirectly through the Pi.
 Serial communication is held with the Pi directly, nothing else.
@@ -474,7 +474,7 @@ The non-drive-command is to do a self-diagnostic.
 
 ## "#M1.4"
 
-"The mower shall use a camera and send images to the backend REST API when collision avoidance occurs."
+* "The mower shall use a camera and send images to the backend REST API when collision avoidance occurs."
 
 As mentioned under "#M.1.2", the Arduino sends "CAPTURE" to the Pi and waits for an image to be taken.
 This is done when the ultrasonic sensor is triggered during autonomous driving.
@@ -485,15 +485,15 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 
 # "Minimum"
 
-"The code shall be under version control." - Done in GitHub.
-"There shall be a Software Design Description document where each source code component is described." - You are reading it now!
-"A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." - We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
-"An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." - Missing from some members.
-"An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." - Not done.
+* "The code shall be under version control." - Done in GitHub.
+* "There shall be a Software Design Description document where each source code component is described." - You are reading it now!
+* "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." - We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
+* "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." - Missing from some members.
+* "An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." - Not done.
 
 # "Medium"
 
-"The Software Design Description shall contain low level requirements linked to the high level requirements in this document as needed in order to implement the functionality." - From Trello:
+* "The Software Design Description shall contain low level requirements linked to the high level requirements in this document as needed in order to implement the functionality." - From Trello:
 
 1. Retrieve line follower data. - 2 (Difficulty, abstract)
 2. Be able to control the motors. - 2
@@ -515,9 +515,9 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 18. Document code in Pi. - 2
 19. Do complete system test. - 8
 
-"Each Low level requirement or related softeware work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
-"The sum of all tasks and estimated efforts shall be compared with the time fram and resource availability of the project and planned accordingly." - Done when project is over.
-"Completion of tasks and used effort shall be compared with the plan and the estimates." - Done when project is over.
+* "Each Low level requirement or related softeware work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
+* "The sum of all tasks and estimated efforts shall be compared with the time fram and resource availability of the project and planned accordingly." - Done when project is over.
+* "Completion of tasks and used effort shall be compared with the plan and the estimates." - Done when project is over.
 
 # "Maximum"
 
