@@ -355,6 +355,7 @@ void doSerialTick(bool ack){
   }
   clearStoredMessages();	//When we have handled the messages, reset them to avoid that the mower repeats some actions
 }
+```
 
 ## "testing_code.ino"
 
