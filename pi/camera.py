@@ -1,5 +1,6 @@
 """
-This is the camera module.
+This is the camera module. It is responsible for taking a pictures when it gets commands from the arduino.
+It also gets the picture resolution and the directory to where to store the picture.
 """
 import time
 import os
@@ -78,7 +79,7 @@ class Camera(Thread):
             (message, payload) = self.orders.get()
 
             if message == 'CAPTURE':
-                filename = 'lol.jpg' if (payload is None) \
+                filename = 'CAPTURED_PIC.jpg' if (payload is None) \
                             else payload
                 path = self.capture(filename)
                 self.to_controller('CAPTURE_DONE', path)
