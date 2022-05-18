@@ -12,7 +12,12 @@ from queue     import Queue
 
 import bluetooth as bt
 
-
+cmds_dict = {'1' : 'FORWARD' ,
+             '3' : 'BACKWARD',
+             '4' : 'LEFT'    ,
+             '2' : 'RIGHT'   ,
+             '0' : 'STOP'    ,
+             '0' : 'NONE'    }
 
 class BtServer(Thread):
     """
@@ -136,8 +141,9 @@ class BtServer(Thread):
                         bt_data = bt_data.decode('UTF-8').strip()
                         if len(bt_data) > 0:
                             #Send data to main
-                            #self.to_controller('MANUAL',bt_data)
-                            print(f'BTSERVER: received {bt_data}')
+                            cmd = cmds_dict[bt_data]
+                            self.to_controller('MANUAL',cmd)
+                            print(f'BTSERVER: received {cmd} ({bt_data})')
                     except IOError:
                         self.close_connection()
                         state = 'NO_CONN'

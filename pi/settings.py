@@ -25,7 +25,7 @@ RPI_UPDATE_FREQUENCY_HERTZ = 20
 # ARDUINO               #
 #########################
 #########################
-ARDUINO_SERIAL_BAUD = 115200
+ARDUINO_SERIAL_BAUD = 57600
 
 ARDUINO_SERIAL_DEV  = '/dev/ttyUSB0' if ON_UNIX \
                 else 'c:\\loldunno-this-is-windows'

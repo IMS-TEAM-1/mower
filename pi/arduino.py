@@ -14,6 +14,28 @@ import time
 import serial
 # import select
 
+
+
+
+send_dict = {'FORWARD'      : '1',
+             'BACKWARD'     : '3',
+             'LEFT'         : '4',
+             'RIGHT'        : '2',
+             'STOP'         : '0',
+             'NONE'         : '0',
+
+             'POS'          : 'P',
+             'MANUAL'       : 'M',
+             'AUTONOMOUS'   : 'A',
+             'CAPTURE'      : 'C',
+             'DIAGNOSTIC'   : 'D',
+             'STANDBY'      : 'S',
+             'Hello'        : 'H',
+             'ack'          : '!',
+             'nok'          : '?'}
+recv_dict = dict( (v,k) for (k,v) in send_dict.items() )
+
+
 class Arduino(Thread):
     """
     Class for managing communication with the Arduino over serial connection.
@@ -46,16 +68,16 @@ class Arduino(Thread):
         """
         Open up with a handshake to the robot.
         """
-        greeting        =  'Hello'
+        greeting        = send_dict['Hello']
         self.send_serial(greeting)
         time.sleep(0.050) # let's wait before reading
         received        = self.receive_serial()
-        expected_reply  = f'{greeting}:ack'
+        expected_reply  = greeting + send_dict['ack']
 
         while received != expected_reply:
             print('arduinoHello(): not ready, '
                   + f'instead got <<<{received}>>>')
-            self.send_serial('Hello')
+            self.send_serial(send_dict['Hello'])
             time.sleep(2)
             received = self.receive_serial()
         print('arduinoHello(): ready')
@@ -68,6 +90,7 @@ class Arduino(Thread):
         Parameters:
             message (str): Message to be sent. Newlines are added to it.
         """
+        print(f'ARDUINO <==== <<{message}>>')
         self.ser.write((message + '\r\n').encode('ascii'))
 
 
@@ -82,6 +105,8 @@ class Arduino(Thread):
         line = self.ser.readline()
         line = str(line.decode('utf-8').strip())
         self.ser.reset_input_buffer()
+
+        print(f'ARDUINO ====> <<{line}>>')
         return line
 
 
@@ -134,6 +159,7 @@ class Arduino(Thread):
         ard_states = ['AUTONOMOUS', 'MANUAL', 'CAPTURE', 'STANDBY']
         ard_state = 'AUTONOMOUS'
 
+
         while running:
 
             # Documentation at
@@ -159,11 +185,30 @@ class Arduino(Thread):
                     running = False
                     print('arduino quits!')
 
-                elif message == 'MANUAL':
-                    self.send_serial('MANUAL:NONE')
 
+                ##############################
+                ## MANUAL COMMAND           ##
+                ##############################
+                elif message == 'MANUAL':
+
+                    valid_manual_commands = ['FORWARD',
+                                             'BACKWARD',
+                                             'LEFT',
+                                             'RIGHT',
+                                             'STOP',
+                                             'NONE']
+                    ok_pl = payload in valid_manual_commands
+
+                    if not ok_pl:
+                        print(f'ARD: bad manual command <<<{payload}>>>')
+
+                    if payload == 'STOP':
+                        payload = 'NONE' # because of the arduino code
+
+                    ard_manual_command = send_dict[payload] # get the number
+                    self.send_serial(ard_manual_command)
                     from_ard = self.receive_serial()
-                    expectation = 'NONE:ack'
+                    expectation = ard_manual_command + send_dict['ack']
                     if from_ard != expectation:
                         print(f'arduino.py: Expected {expectation}')
                         print(f'arduino.py:      Got {from_ard}')
@@ -173,9 +218,9 @@ class Arduino(Thread):
                 elif message == 'AUTONOMOUS':
                     print(f'ARD: got {message}')
 
-                    self.send_serial('AUTONOMOUS')
+                    self.send_serial(send_dict['AUTONOMOUS'])
                     from_ard = self.receive_serial()
-                    expectation = 'AUTONOMOUS:ack'
+                    expectation = send_dict['AUTONOMOUS'] + send_dict['ack']
                     if from_ard != expectation:
                         print(f'arduino.py: Expected {expectation}')
                         print(f'arduino.py:      Got {from_ard}')
@@ -183,9 +228,9 @@ class Arduino(Thread):
                         ard_state = 'AUTONOMOUS'
 
                 elif message == 'STANDBY':
-                    self.send_serial('STANDBY')
+                    self.send_serial(send_dict['STANDBY'])
 
-                    expectation = 'STANDBY:ack'
+                    expectation = send_dict['STANDBY'] + send_dict['ack']
                     from_ard = self.receive_serial()
                     if from_ard != expectation:
                         print(f'arduino.py: Expected {expectation}')
@@ -197,10 +242,11 @@ class Arduino(Thread):
                 # Let's go again!
                 elif message == 'CAPTURE_DONE':
                     print(f'ARDUINO: got {message}, going again!')
-                    self.send_serial('CAPTURE:ack')
+                    self.send_serial(send_dict['CAPTURE'] + send_dict['ack'])
 
                 elif message == 'SET_STATE':
-                    self.send_serial(payload)
+                    if payload != 'MANUAL': # fugly hack, manual is sent elsewhere
+                        self.send_serial(send_dict[payload])
                     ard_state = payload
 
                 else:
@@ -219,14 +265,14 @@ class Arduino(Thread):
                 ser_message = self.receive_serial()
 
                 # The arduino tells us it found an obstacle
-                if ser_message == 'CAPTURE':
+                if ser_message == recv_dict['CAPTURE']:
                     self.__to_controller('CAPTURE')
                     ard_state = 'CAPTURE'
 
                 # Deal with 'POS:123,78989'
-                elif ser_message[0 : 3] == 'POS':
-                    [_, coord_str]  = ser_message.split(':')
-                    [x,y]           = coord_str.split(',')
+                elif ser_message[0] == recv_dict['POS']:
+                    coord_str   = ser_message[1:]
+                    [x,y]       = coord_str.split(',')
                     self.__to_controller( 'POS', (int(x), int(y)) )
 
                 else:

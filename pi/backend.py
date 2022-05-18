@@ -29,8 +29,8 @@ class Backend(Thread):
 
     def __del__(self):
         # terminate connection to backend
-        pass
 
+        pass
     def can_reach_backend(self, timeout_sec=2):
         """
         Testing function if backend is responsive. Run before communication.
@@ -43,12 +43,13 @@ class Backend(Thread):
                        ' 1> /dev/null'
         ret = os.system(cmd)
         if ret == 0:
-            print(f'BACKEND: could not reach {self.backend_adr} for ping.')
+            # print(f'BACKEND: could not reach {self.backend_adr} for ping.')
+            pass
         return not bool(ret)
 
     def get_user_json(self):
         get_uri  = f'{self.base_uri}users'
-        print(f'\tgetting request: {get_uri}')
+        # print(f'\tgetting request: {get_uri}')
         response = requests.get(get_uri).json()
         print(response)
         return response
@@ -123,6 +124,7 @@ class Backend(Thread):
 
         last_known_position = (0,0)
 
+
         while running:
             q_elem_available    = not self.orders.empty()
             time_for_be_req     = time_left_until_be_state_req <= 0.0
@@ -162,6 +164,8 @@ class Backend(Thread):
                           + f'({message},{payload})')
 
             elif time_for_be_req:
+                # reset countdown:
+                time_left_until_be_state_req = period_for_backend_requests
                 backend_pinged = self.can_reach_backend(timeout_sec=2)
                 if backend_pinged:
                     be_state = self.get_state()

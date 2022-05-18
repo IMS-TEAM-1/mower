@@ -1,11 +1,8 @@
 """
 Main/Controller module
 """
-# from posixpath  import split
-from time       import sleep
 
 from queue      import Queue
-# from threading  import Thread
 
 from arduino    import Arduino
 from backend    import Backend
@@ -28,10 +25,10 @@ def main():
     q_to_controller = Queue(maxsize = 20)
 
     # Create instances
-    #arduino = Arduino(s.ARDUINO_SERIAL_DEV,
-    #                  s.ARDUINO_SERIAL_BAUD,
-    #                  s.ARDUINO_SERIAL_TIMEOUT,
-    #                  q_to_controller)
+    arduino = Arduino(s.ARDUINO_SERIAL_DEV,
+                      s.ARDUINO_SERIAL_BAUD,
+                      s.ARDUINO_SERIAL_TIMEOUT,
+                      q_to_controller)
 
     camera  = Camera(s.CAMERA_SCREENSHOT_RESOLUTION,
                      s.CAMERA_DIRECTORY,
@@ -53,12 +50,12 @@ def main():
     # backend.get_user_json()
 
     # Initialize hardware (don't make connections!)
-    # arduino.hello()
+    arduino.hello()
     btserver.hello()
 
     # Start the threads
-    #arduino.start()
-    #backend.start()
+    arduino.start()
+    backend.start()
     btserver.start()
     camera.start()
     keyb.start()
@@ -67,8 +64,8 @@ def main():
     running = True
 
     # send initial orders
-    #arduino.order('STATE','STANDBY')
-    
+    arduino.order('STATE','STANDBY')
+
     state = 'STANDBY'
     #state = 'NO_CONN'
     # Variables used in main loop.
@@ -95,32 +92,23 @@ def main():
         (source, message, payload) = q_to_controller.get()
 
 
-        #if source is arduino:
+        if source is arduino:
             # print(f'main(): ARD says: {message}')
 
-        #    if message == 'CAPTURE': # we hit an obstacle
+            if message == 'CAPTURE': # we hit an obstacle
                 # arduino has stopped by itself
-        #        camera.order( ('CAPTURE', 'image.jpg') )
-        #        waiting_for_camera = True
+                camera.order( ('CAPTURE', 'image.jpg') )
+                waiting_for_camera = True
 
-        #    if message == 'POS':
-        #        (x, y) = payload
+            if message == 'POS':
+                (x, y) = payload
                 # something like this?
-        #        backend.order('POS_DATA', (x, y))
+                backend.order('POS_DATA', (x, y))
 
-        #elif
-        if source is btserver:
+        elif source is btserver:
             print('main() got btserver message!')
             if message == 'MANUAL':
-                if payload == 'FORWARD':
-                    arduino.order('MANUAL:FORWARD')
-                if payload == 'BACKWARD':
-                    arduino.order('MANUAL:BACKWARD')
-                if payload == 'LEFT':
-                    arduino.order('MANUAL:LEFT')
-                if payload == 'RIGHT':
-                    arduino.order('MANUAL:RIGHT')
-
+                arduino.order('MANUAL', payload)
 
         elif source is camera:
             print(f'main(): CAM says: {message}')
@@ -146,7 +134,7 @@ def main():
                         arduino.order('SET_STATE', payload)
                         state = payload
                         if state == 'MANUAL':
-                            arduino.order('MANUAL:NONE')
+                            arduino.order('MANUAL','NONE')
                             btserver.order('BACKEND_SAYS_ACTIVATE_BT')
                             print('Turning on BT controls')
                         elif state == 'AUTONOMOUS':
@@ -165,7 +153,7 @@ def main():
         elif source is keyb:
             if message == 'EXIT':
                 print('main() got EXIT from keyb')
-                #arduino.order('EXIT')
+                arduino.order('EXIT')
                 btserver.order('EXIT')
                 camera.order('EXIT')
                 backend.order('EXIT')
@@ -193,8 +181,8 @@ def main():
             print(f'    ({source}, <<<{message}>>>, <<<{payload}>>>)')
 
     print('joining threads')
-    # arduino.join()
-    # backend.join()
+    arduino.join()
+    backend.join()
     btserver.join()
     camera.join()
     keyb.join()
