@@ -7,6 +7,9 @@
  * The solution to this would either be complementary GPS/GNSS, better encoders or some other way of validating the rough position to calibrate the encoder values.
  */
 
+/*
+ * All code found here is due to RNR12
+ */
 
 //Coordinates storing where the robot is
 int coordinateX = 0;

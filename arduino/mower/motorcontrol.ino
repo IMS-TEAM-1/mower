@@ -4,6 +4,10 @@
  * Rotating functions can also be found here.
  */
 
+ /*
+  * All code follows RNR2
+  */
+
 
 direction_t currentDirection = NONE;
 

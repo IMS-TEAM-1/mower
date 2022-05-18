@@ -3,6 +3,10 @@
  * It periodically reads the serial bus and stores what ever it recieves and then does the appropiate action depending on what it recieved.
  */
 
+ /*
+  * Code here is due to RNR4 and RNR16
+  */
+
 
 //Global variables used to store the latest messages recieved, time when the mower last got updated and how many missed messages we have missed
 String recievedMessage;

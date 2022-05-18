@@ -2,6 +2,8 @@
  * This file contains simple gyro functions.
  * When calulating where the mower is, we need to know the average of what the gyro was at the start of the movement and at the end.
  * Calulating the average gives us more accurate results since the mower is not moving in a straight line (due to bad "larvfötter").
+ * 
+ * Code here is for RNR10
  */
 
 float gyroValueAtStart = 0;

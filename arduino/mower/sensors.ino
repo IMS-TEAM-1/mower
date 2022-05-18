@@ -1,3 +1,7 @@
+/*
+ * Both functions are for RNR1
+ */
+
 //Used for collision control
 bool getUltraSonicSensorTriggered(){
   return (ultraSonicSensor.distanceCm() < ULTRA_SONIC_SENSOR_DISTANCE_CM);

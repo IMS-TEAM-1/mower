@@ -21,16 +21,16 @@
  */
 mowerState_t currentState = STANDBY;
 
-MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);
-MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT);
+MeUltrasonicSensor ultraSonicSensor(ULTRASONIC_SENSOR_PORT);  //RNR1
+MeLineFollower lineFollowerSensor(LINE_FOLLOWER_SENSOR_PORT); //RNR1
 MeRGBLed rgbled_0(0, 12);
-MeGyro gyro(9, 0x69);
+MeGyro gyro(9, 0x69); //RNR10
 
-MeEncoderOnBoard Encoder_1(SLOT1);
-MeEncoderOnBoard Encoder_2(SLOT2);
+MeEncoderOnBoard Encoder_1(SLOT1);  //RNR10
+MeEncoderOnBoard Encoder_2(SLOT2);  //RNR10
 
 //Initiliazes sensors, serial, ports etc.
-void setup() {
+void setup() {  
   setupSerial();
   setupEncoderInterrupts();
   setupMotors();
@@ -53,7 +53,7 @@ void setup() {
  * Diagnostic is when the mower shall perform "self-diagnostics"
  * 
  */
-void loop() {
+void loop() { //RNR7
   doSerialTick(true);
   
   switch(currentState){

@@ -1,3 +1,7 @@
+/*
+ * Code here is for RNR10
+ */
+
 //Attaches interupts to the encoders when storing the puleses, used for dead reckoning
 void setupEncoderInterrupts(){
   attachInterrupt(Encoder_1.getIntNum(), isr_process_encoder1, RISING);

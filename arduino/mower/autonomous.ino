@@ -64,6 +64,8 @@ void doReverseProcedure(){
  * This function is called when the Arduino should wait for the Pi to take the picture through the camera.
  * The mower stand still and waits for an acknowledgement.
  * After a set time-out value, the mower continoues anyway.
+ * 
+ * For RNR5
  */
 void waitForImageCaptured(){
   bool doLoop = true;

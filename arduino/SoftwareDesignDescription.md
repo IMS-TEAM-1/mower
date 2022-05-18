@@ -495,25 +495,25 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 
 * "The Software Design Description shall contain low level requirements linked to the high level requirements in this document as needed in order to implement the functionality." - From Trello:
 
-1. Retrieve line follower data. - 2 (Difficulty, abstract)
-2. Be able to control the motors. - 2
-3. Be able to install Raspbian/Raspberry Pi OS. - 1
-4. Establish communicaiton between Raspberry Pi and Arduino. - 2
-5. Capture a picture with Raspberry Pi. - 3
-6. Bug testing for each sprint. - 3
-7. Transition form defined loop code to communication based code. - 2
-8. Manage Wi-Fi connections. - 3
-9. Establish a communication between the Pi and backend over Internet. - 3
-10. Hanlde encoder and gyroscope data. - 7, Edited: 2
-11. Implement all API-requests and posts. - 3
-12. Implement dead reckoning function. - 3, Edited: 5
-13. Document code in Arduino. - 2
-14. Thread solution for Pi code. - 8
-15. Do this SDD. - 2
-16. Set up and implement serial protocol. - 3, Edited 1: 5, Edited 2: 7
-17. Implement Pi Bluetooth. - 2, Edited: 5
-18. Document code in Pi. - 2
-19. Do complete system test. - 8
+RNR1. Retrieve line follower and ultrasonic data. - 2 (Difficulty, abstract. RNR = Requirement Number)
+RNR2. Be able to control the motors. - 2
+RNR3. Be able to install Raspbian/Raspberry Pi OS. - 1
+RNR4. Establish communicaiton between Raspberry Pi and Arduino. - 2
+RNR5. Capture a picture with Raspberry Pi. - 3
+RNR6. Bug testing for each sprint. - 3
+RNR7. Transition form defined loop code to communication based code. - 2
+RNR8. Manage Wi-Fi connections. - 3
+RNR9. Establish a communication between the Pi and backend over Internet. - 3
+RNR10. Hanlde encoder and gyroscope data. - 7, Edited: 2
+RNR11. Implement all API-requests and posts. - 3
+RNR12. Implement dead reckoning function. - 3, Edited: 5
+RNR13. Document code in Arduino. - 2
+RNR14. Thread solution for Pi code. - 8
+RNR15. Do this SDD. - 2
+RNR16. Set up and implement serial protocol. - 3, Edited 1: 5, Edited 2: 7
+RNR17. Implement Pi Bluetooth. - 2, Edited: 5
+RNR18. Document code in Pi. - 2
+RNR19. Do complete system test. - 8
 
 * "Each Low level requirement or related softeware work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
 * "The sum of all tasks and estimated efforts shall be compared with the time fram and resource availability of the project and planned accordingly." - Done when project is over.
