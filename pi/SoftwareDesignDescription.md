@@ -1,6 +1,9 @@
 
 # Mower Pi Zero documentation
 
+
+## `main.py`
+
 The file `main.py` is what starts all the sub-modules and then starts all the threads for the modules. Most of the sub-systems deal with multiple inputs. They might be dealing with reading some handle/socket as the same time as they're waiting for queued messages from the main loop.
 
 To understand the main-loop code, it's similar to this:
@@ -41,7 +44,12 @@ def main():
 
 Reads and writes over serial connection to the Arduino, which manages motors, top LEDs, gyroscope and other things.
 
+def send_serial(self, message): is responsible of sending the data over to arduino via serial connection.
+def receive_serial(self): is responsible of receiving data from the arduino over the serial connection. it also return a string with stripped newline characters.
+
 Also keeps track of the state the mower is currently set to (AUTONOMOUS, MANUAL etc.).
+
+It also contains the first connection check with arduino. Both the mower and raspberry pi should wait until arduino sends back that it is ready.
 
 
 ## `backend.py`
@@ -51,12 +59,24 @@ Server communication. Deals with uploading images to the server among other thin
 
 ## `camera.py`
 
-Only deals with the queue as input. Get a message, take a picture. That's all.
+Only deals with the queue as input. Get a message, take a picture. It is responsible for taking a pictures when it gets commands from the arduino.
+It also gets the picture resolution and the directory to where to store the picture.
 
 
 ## `keyb.py`
 
 A module for dealing with input. From `stdin` normally, but could be from other handles. Set up to take debug sequences.
 
+This is the keyboard module. To read from the handle
+provided (from settings).
+Often the handle is stdin, but others may be used.
+
+Mainly a way to run sequences of test code.
+
+## `settings.py`
+
+This file is self-explanatory, it contains a multitude of defines and other data types used within the software to avoid magic numbers and improve readability.
+
+## `btserver.py`
 
 
