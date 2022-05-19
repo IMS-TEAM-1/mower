@@ -44,33 +44,117 @@ def main():
 
 Reads and writes over serial connection to the Arduino, which manages motors, top LEDs, gyroscope and other things.
 
-def send_serial(self, message): is responsible of sending the data over to arduino via serial connection.
-def receive_serial(self): is responsible of receiving data from the arduino over the serial connection. it also return a string with stripped newline characters.
+def send_serial(self, message):
+    print(f'ARDUINO <==== <<{message}>>')
+    self.ser.write((message + '\r\n').encode('ascii'))
 
-Also keeps track of the state the mower is currently set to (AUTONOMOUS, MANUAL etc.).
+ is responsible of sending the data over to arduino via serial connection.
+
+def receive_serial(self):
+    line = self.ser.readline()
+    line = str(line.decode('utf-8').strip())
+    self.ser.reset_input_buffer()
+
+    print(f'ARDUINO ====> <<{line}>>')
+    return line
+
+ is responsible of receiving data from the arduino over the serial connection. it also return a string with stripped newline characters.
+
+
+It also keeps track of the state the mower is currently set to (AUTONOMOUS, MANUAL etc.).
 
 It also contains the first connection check with arduino. Both the mower and raspberry pi should wait until arduino sends back that it is ready.
+def hello(self):
+        greeting        = send_dict['Hello']
+        self.send_serial(greeting)
+        time.sleep(0.050) # let's wait before reading
+        received        = self.receive_serial()
+        expected_reply  = greeting + send_dict['ack']
+
+        while received != expected_reply:
+            print('arduinoHello(): not ready, '
+                  + f'instead got <<<{received}>>>')
+            self.send_serial(send_dict['Hello'])
+            time.sleep(2)
+            received = self.receive_serial()
+        print('arduinoHello(): ready')
 
 
 ## `backend.py`
 
 Server communication. Deals with uploading images to the server among other things. Also receiving position data.
 
-def can_reach_backend: Testing function if backend is responsive. Run before communication.
-This test should avoid crashes.
+def can_reach_backend:
+    tries       = 1
+    cmd         = f'ping -c {tries}'            + \
+                   f' -w {timeout_sec}'         + \
+                   f' -O {self.backend_adr}'    + \
+                   ' 1> /dev/null'
+     ret = os.system(cmd)
+     if ret == 0:
+         # print(f'BACKEND: could not reach {self.backend_adr} for ping.')
+            pass
+     return not bool(ret)
 
-def get_state: gets the state of the mower from backend and store it, then the state should be send to the arduino via "arduino.py" module.
+ Testing function if backend is responsive. Run before communication.
+ This test should avoid crashes.
 
-def encode_picture_to_base64: this functions is responsible of converting the taken image to base64 to further send it to the backend via def post_pic function.
+def get_state:
+     get_uri     = self.base_uri + 'mowers'
+     print(f'\tgetting request: {get_uri}')
+     mower       = requests.get(get_uri)
+     mower_info  = json.loads(mower.text)[0]
+     be_state    = mower_info['state']
 
-def post_pos: this function is responsible of posting the mowers location to the backend, the location is collected from the serial commuinication between the arduino and the raspberry pi in the "arduino.py" module.
+     print(f'Backend reports state {be_state}')
+     return be_state
 
-def post_pic: this function is responsible of posting the picture in base64 to the backend along side of the position of where the picture was taken.
+ gets the state of the mower from backend and returns it, then the state should be send to the arduino via "arduino.py" module.
+
+def encode_picture_to_base64:
+ with open(filepath, 'rb') as image_file:
+         data = base64.b64encode(image_file.read())
+ return data.decode('utf-8')
+         
+ this functions is responsible of converting the taken image to base64 to further send it to the backend via def post_pic function.
+
+def post_pos:
+ data = {'key1' : x,
+         'key2' : y,
+         }
+ get_uri  = self.base_uri + '/mowers/1/locations'
+ requests.post(get_uri, data = data)
+
+ this function is responsible of posting the mowers location to the backend, the location is collected from the serial commuinication between the arduino and the raspberry pi in the "arduino.py" module.
+
+def post_pic:
+ data = {"x" : x,
+         "y" : y,
+         "image" : pic64 }
+ get_uri  = self.base_uri + '/mowers/1/images'
+ requests.post(get_uri, data = data)
+
+ this function is responsible of posting the picture in base64 to the backend along side of the position of where the picture was taken.
 
 ## `camera.py`
+ def capture(self, img_name):
+     if s.PIZERO:
+         self.__cam = PiCamera()
+         self.__cam.resolution = self.resolution
+
+     time.sleep(2)
+     path = os.path.join(s.CAMERA_DIRECTORY, img_name)
+     if s.PIZERO:
+         self.__cam.capture(path)
+         self.__cam.close()
+         return path
+     else:
+         print('Camera module: fake image at\n\t' + path)
+         return path
 
 Only deals with the queue as input. Get a message, take a picture. It is responsible for taking a pictures when it gets commands from the arduino.
 It also gets the picture resolution and the directory to where to store the picture.
+
 
 
 ## `keyb.py`
