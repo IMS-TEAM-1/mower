@@ -47,6 +47,7 @@ typedef enum {
   ManualLeft,
   ManualRight,
   Diagnostic,
+  CaptureDone,
   Error } messageRecieved_t;
 
 //Enum used in diagnostics when trouble shooting the mower

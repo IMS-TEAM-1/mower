@@ -21,7 +21,7 @@ long timeForNextLocationTick = 0;
 //Tick that checks whether we should update our coordinates or wait until the timer has reset
 void doLocalizationTick(){
   if(millis() > timeForNextLocationTick){
-    timeForNextLocationTick = timeForNextLocationTick + AUTONOMOUS_LOCATION_TICK_TIME_MS;
+    timeForNextLocationTick = millis() + AUTONOMOUS_LOCATION_TICK_TIME_MS;
 
     calculateAndUpdateXAndYCoordinates();
 

@@ -54,7 +54,7 @@ void setup() {
  * 
  */
 void loop() { //RNR7
-  doSerialTick(true);
+  doSerialTick();
   
   switch(currentState){
     case(STANDBY):

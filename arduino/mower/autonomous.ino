@@ -6,6 +6,8 @@
  * This function is called continously when in autonomous-state.
  * 
  */
+bool imageCaptured = false;
+ 
 void doAutonomousTick(){
   //If any of the sensors are triggered, stop, and do the appropiate procedure
   if(getUltraSonicSensorTriggered()){
@@ -91,16 +93,24 @@ void waitForImageCaptured(){
   
   while(doLoop){
     stopMotorsMS(1000);
-    doSerialTick(false);  //We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
-    if(recievedCaptureAck()){
+    doSerialTick();  //We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
+    if(getImageCaptured()){
+      setImageCaptured(false);
       doLoop = false;
     }
     else if(millis() > timeToCapture) {
-      Serial.println(getSerialDataRecieved());
-      Serial.println("ERROR IN CAMERA CAPTURE");
+      setImageCaptured(false);
       doLoop = false;
     }
   }
+}
+
+void setImageCaptured(bool value){
+  imageCaptured = value;
+}
+
+bool getImageCaptured(){
+  return imageCaptured;
 }
 
 

@@ -36,7 +36,7 @@ void setupSerial(){
  * Therefore, it may be confusing to read.
  * It can definatly be developed in a better way, but it works for now according to our designed protocol.
  */
-void doSerialTick(bool ack){
+void doSerialTick(){
   if(millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     if(numberOfTicksMissed > MAX_ALLOWED_MISSED_SERIAL_TICKS){
       currentState = STANDBY;
@@ -46,7 +46,7 @@ void doSerialTick(bool ack){
     else{
       timeAtLastSerialUpdate = millis();
       
-      readSerialData(ack);
+      readSerialData();
 
       //Should be removed when in final use, only here for when testing through Arduino monitor
       numberOfTicksMissed = 0;
@@ -76,7 +76,7 @@ void doSerialTick(bool ack){
 //  }
 //}
 
-void readSerialData(bool ack){
+void readSerialData(){
   if(Serial.available() > 0){
     numberOfTicksMissed = 0;
     
@@ -84,9 +84,7 @@ void readSerialData(bool ack){
 
     setSerialDataRecieved(recievedMessage);
 
-    if(ack){
-      ackMessage(getSerialDataRecieved());
-    }
+    ackMessage(getSerialDataRecieved());
 
     Serial.flush();
     
@@ -363,6 +361,9 @@ bool ackReviecedMessage(){
       currentState = STANDBY;
       sendMessageAck(getSerialDataRecieved());
       return true;
+    case(CaptureDone):
+      setImageCaptured(true);
+      return true;
     case(ManualStop):
       currentState = MANUAL;
       setCurrentDirection(NONE);
@@ -478,6 +479,9 @@ messageRecieved_t convertMessageToInt(String message){
   }
   else if(message.equals("D")){
     return Diagnostic;
+  }
+  else if(message.equals("C!")){
+    return CaptureDone;
   }
   else
     return Error;
