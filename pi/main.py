@@ -181,6 +181,10 @@ def main():
             print(f'    ({source}, <<<{message}>>>, <<<{payload}>>>)')
 
     print('joining threads')
+
+    """
+    RNR14
+    """
     arduino.join()
     backend.join()
     btserver.join()
