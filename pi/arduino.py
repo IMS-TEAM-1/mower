@@ -89,6 +89,8 @@ class Arduino(Thread):
 
         Parameters:
             message (str): Message to be sent. Newlines are added to it.
+
+        RNR4
         """
         print(f'ARDUINO <==== <<{message}>>')
         self.ser.write((message + '\r\n').encode('ascii'))
@@ -101,6 +103,8 @@ class Arduino(Thread):
 
         Returns:
             A string with newline characters stripped.
+        
+        RNR4
         """
         line = self.ser.readline()
         line = str(line.decode('utf-8').strip())
