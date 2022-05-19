@@ -137,6 +137,7 @@ def post_pic:
  this function is responsible of posting the picture in base64 to the backend along side of the position of where the picture was taken.
 
 ## `camera.py`
+```
  def capture(self, img_name):
      if s.PIZERO:
          self.__cam = PiCamera()
@@ -151,6 +152,7 @@ def post_pic:
      else:
          print('Camera module: fake image at\n\t' + path)
          return path
+```
 
 Only deals with the queue as input. Get a message, take a picture. It is responsible for taking a pictures when it gets commands from the arduino.
 It also gets the picture resolution and the directory to where to store the picture.
@@ -172,6 +174,7 @@ Mainly a way to run sequences of test code.
 This file is self-explanatory, it contains a multitude of defines and other data types used within the software to avoid magic numbers and improve readability.
 
 ## `btserver.py`
+```
 def hello(self):
      self.server_socket = bt.BluetoothSocket(bt.RFCOMM)
      self.server_socket.bind((self.uuid, bt.PORT_ANY))
@@ -184,22 +187,23 @@ def hello(self):
          service_id      = self.uuid,
          service_classes = [ self.uuid, bt.SERIAL_PORT_CLASS ],
          profiles        = [ bt.SERIAL_PORT_PROFILE ] )
- 
+```
  this function is responsible of Initialize the BT to allow connection with the app.
  Advertises the BT device as connectable server.
 
 
+```
 def connect_to_app(self):
      self.client_socket, self.client_info = self.server_socket.accept()
      print(f'BTSERVER: ({self.client_socket},{self.client_info}) connected')
      return True
-
+```
  this function is responsible for creating a socket connection to the application.
 
-
+```
 def close_connection(self):
      self.client_socket.close()
      self.server_socket.close()
      print('BTSERVER: close_connection()')
-
+```
  this function is reesponsible of closing socket connection.
