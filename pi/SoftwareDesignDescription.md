@@ -56,6 +56,16 @@ It also contains the first connection check with arduino. Both the mower and ras
 
 Server communication. Deals with uploading images to the server among other things. Also receiving position data.
 
+def can_reach_backend: Testing function if backend is responsive. Run before communication.
+This test should avoid crashes.
+
+def get_state: gets the state of the mower from backend and store it, then the state should be send to the arduino via "arduino.py" module.
+
+def encode_picture_to_base64: this functions is responsible of converting the taken image to base64 to further send it to the backend via def post_pic function.
+
+def post_pos: this function is responsible of posting the mowers location to the backend, the location is collected from the serial commuinication between the arduino and the raspberry pi in the "arduino.py" module.
+
+def post_pic: this function is responsible of posting the picture in base64 to the backend along side of the position of where the picture was taken.
 
 ## `camera.py`
 
