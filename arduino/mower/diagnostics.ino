@@ -222,9 +222,7 @@ void doSensorsDiag(){
   bool moduleSucceeded = false;
 
   if(doLinefollowerSensorDiag()){
-    Serial.println("1");
     if(doUltrasonicSensorDiag()){
-      Serial.println("2");
       moduleSucceeded = true;
     }
   }
@@ -296,16 +294,33 @@ bool doLinefollowerSensorDiag(){
   return isFunctional;
 }
 
+//void doSerialComDiag(){
+//  bool moduleSucceeded = false;
+//
+//  clearStoredMessages();
+//
+//  if(getRecievedSerialDataFirstPart() == "" && getRecievedSerialDataSecondPart() == ""){
+//    String s_temp = "DIAGNOSTIC_SERIAL:TEST";
+//    checkAndSetRecievedMessage(s_temp);
+//
+//    if(getRecievedSerialDataFirstPart() == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart() == "TEST"){
+//      moduleSucceeded = true;
+//    }
+//  }
+//
+//  if(!moduleSucceeded){storedFaultCodes.enqueue(8);}
+//}
+
 void doSerialComDiag(){
   bool moduleSucceeded = false;
 
   clearStoredMessages();
 
-  if(getRecievedSerialDataFirstPart() == "" && getRecievedSerialDataSecondPart() == ""){
+  if(getSerialDataRecieved().equals("")){
     String s_temp = "DIAGNOSTIC_SERIAL:TEST";
-    checkAndSetRecievedMessage(s_temp);
+    setSerialDataRecieved(s_temp);
 
-    if(getRecievedSerialDataFirstPart() == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart() == "TEST"){
+    if(getSerialDataRecieved().equals("DIAGNOSTIC_SERIAL:TEST")){
       moduleSucceeded = true;
     }
   }

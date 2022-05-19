@@ -21,21 +21,33 @@ typedef enum {
   RIGHT } direction_t;
 
 //Enums of what messages the mower can recieve and respond to
-typedef enum {
-  Hello,
-  Stop,
-  Autonomous,
-  Manual,
-  Diagnostic,
-  Error_1} messageFirstPart_t;
+//typedef enum {
+//  Hello,
+//  Stop,
+//  Autonomous,
+//  Manual,
+//  Diagnostic,
+//  Error_1} messageFirstPart_t;
+//
+//typedef enum {
+//  None,
+//  Forward,
+//  Backward,
+//  Left,
+//  Right,
+//  Error_2,} messageSecondPart_t;
 
 typedef enum {
-  None,
-  Forward,
-  Backward,
-  Left,
-  Right,
-  Error_2,} messageSecondPart_t;
+  Hello,
+  Standby,
+  Autonomous,
+  ManualStop,
+  ManualForward,
+  ManualBackward,
+  ManualLeft,
+  ManualRight,
+  Diagnostic,
+  Error } messageRecieved_t;
 
 //Enum used in diagnostics when trouble shooting the mower
 typedef enum {
