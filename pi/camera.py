@@ -40,6 +40,8 @@ class Camera(Thread):
         """
         Take picture with the camera. Neither opens nor
         closes the connection to it.
+
+        RNR5
         """
         if s.PIZERO:
             self.__cam = PiCamera()
