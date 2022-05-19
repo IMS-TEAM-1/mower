@@ -35,6 +35,8 @@ class Backend(Thread):
         """
         Testing function if backend is responsive. Run before communication.
         This test should avoid crashes.
+
+        RNR9, RNR11
         """
         tries       = 1
         cmd         = f'ping -c {tries}'            + \
@@ -58,6 +60,8 @@ class Backend(Thread):
     def get_state(self):
         """
         Get state from backend
+
+        RNR9, RNR11
         """
         get_uri     = self.base_uri + 'mowers'
         print(f'\tgetting request: {get_uri}')
@@ -82,6 +86,8 @@ class Backend(Thread):
     def post_pos(self, x, y):
         """
         Send position of mower to the backend.
+
+        RNR9, RNR11
         """
         data = {'key1' : x,
                 'key2' : y,
@@ -93,6 +99,8 @@ class Backend(Thread):
     def post_pic(self, x, y, pic64):
         """
         send picture and position of mower to the backend
+
+        RNR9, RNR11
         """
         data = {"x" : x,
                 "y" : y,
