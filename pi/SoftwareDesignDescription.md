@@ -220,4 +220,4 @@ def close_connection(self):
      self.server_socket.close()
      print('BTSERVER: close_connection()')
 ```
- this function is reesponsible of closing socket connection.
+ this function is responsible of closing socket connection.
