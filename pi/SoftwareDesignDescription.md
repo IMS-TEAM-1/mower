@@ -172,5 +172,34 @@ Mainly a way to run sequences of test code.
 This file is self-explanatory, it contains a multitude of defines and other data types used within the software to avoid magic numbers and improve readability.
 
 ## `btserver.py`
+def hello(self):
+     self.server_socket = bt.BluetoothSocket(bt.RFCOMM)
+     self.server_socket.bind((self.uuid, bt.PORT_ANY))
+     self.server_socket.listen(1)
+     self.server_port = self.server_socket.getsockname()[1]
+
+     bt.advertise_service(
+         self.server_socket,
+         "panzermower",
+         service_id      = self.uuid,
+         service_classes = [ self.uuid, bt.SERIAL_PORT_CLASS ],
+         profiles        = [ bt.SERIAL_PORT_PROFILE ] )
+ 
+ this function is responsible of Initialize the BT to allow connection with the app.
+ Advertises the BT device as connectable server.
 
 
+def connect_to_app(self):
+     self.client_socket, self.client_info = self.server_socket.accept()
+     print(f'BTSERVER: ({self.client_socket},{self.client_info}) connected')
+     return True
+
+ this function is responsible for creating a socket connection to the application.
+
+
+def close_connection(self):
+     self.client_socket.close()
+     self.server_socket.close()
+     print('BTSERVER: close_connection()')
+
+ this function is reesponsible of closing socket connection.
