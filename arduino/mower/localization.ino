@@ -38,8 +38,8 @@ void calculateAndUpdateXAndYCoordinates(){
   
   float calcTemp = ((getAverageGyroValue() + LOCALIZATION_CIRCLE_ROTATION_OFFSET) * DEGREES_TO_RADIAN_FACTOR);
 
-  newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
-  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) * -1)); //*-1 since we want the x-axis to be inverted due to the offset of 90 degrees
+  newYCoordinate = getCoordinateY() + (getDistanceTravelled() * (sin(calcTemp)) *-1); //*-1 due to Canvas-inversion in app
+  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) *-1)); //same as above
 
   setCoordinateX(newXCoordinate);
   setCoordinateY(newYCoordinate);

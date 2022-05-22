@@ -31,7 +31,7 @@ void doManualControlTick(){
  * This is the main mowing function
  * This takes one input and one speed and the mower moves accordingly.
  */
-void move(direction_t direction, int speed)
+void move(direction_t direction, float speedVal)
 {
   setCurrentDirection(direction);
   float leftSpeed = 0;
@@ -39,23 +39,23 @@ void move(direction_t direction, int speed)
   
   if(getCurrentDirection() == FORWARD){
     activateManualForwardLEDs();
-    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = speed;
+    leftSpeed = -speedVal * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = speedVal;
   }
   else if(getCurrentDirection() == BACKWARD){
     activateManualBackwardLEDs();
-    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = -speed;
+    leftSpeed = speedVal * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -speedVal;
   }
   else if(getCurrentDirection() == LEFT){
     activateManualLeftLEDs();
-    leftSpeed = -speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = -speed;
+    leftSpeed = -speedVal * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = -speedVal;
   }
   else if(getCurrentDirection() == RIGHT){
     activateManualRightLEDs();
-    leftSpeed = speed * MOTOR_DEVIATION_FACTOR;
-    rightSpeed = speed;
+    leftSpeed = speedVal * MOTOR_DEVIATION_FACTOR;
+    rightSpeed = speedVal;
   }
   else if(getCurrentDirection() == NONE) {
     leftSpeed = 0;
@@ -72,7 +72,8 @@ void move(direction_t direction, int speed)
 void driveDistance(int millimeters, direction_t movingDirection, int motorSpeed){
   resetEncoderValues();
 
-  while((getDistanceTravelled() < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
+  while((abs(getDistanceTravelled()) < millimeters - MILLIMETER_DISTANCE_WHEN_FREE_ROLLING_AFTER_FULL_SPEED)){
+    Serial.println(getDistanceTravelled());
     move(movingDirection, motorSpeed);
   }
   //Serial.println("Gyro in driveDistance: " + String(getGyroZ()));
@@ -151,7 +152,7 @@ void rotateByDegrees(int degreesToRotate, direction_t rotateLeftOrRight, int mot
     }
   }
   else{
-    Serial.println("Recieved wrong parameter in: rotateByDegrees");
+    //Serial.println("Recieved wrong parameter in: rotateByDegrees");
   }
   stopMotorsMS(200);
 }

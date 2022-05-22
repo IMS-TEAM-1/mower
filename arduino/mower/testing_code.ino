@@ -117,13 +117,13 @@ void doDrivingInASquareTest(){
 
 void testSpeedOfRobot(){
   if(!getLineFollowerTriggered()){
-    Serial.println("Moving until tape found");
+    //Serial.println("Moving until tape found");
 
     move(FORWARD, MAX_MOTOR_SPEED);
   }
   else{
     TESTfirstTapeFound = true;
-    Serial.println("Tape found, stopping in 3 seconds");
+    //Serial.println("Tape found, stopping in 3 seconds");
     resetEncoderValues();
     stopMotorsMS(3000);
 
@@ -140,7 +140,7 @@ void testSpeedOfRobot(){
     driveDistance(1000, FORWARD, MOTOR_SPEED_AUTONOMOUS_FORWARD * PERCENTAGE_TO_PWM_FACTOR);
 
     calculateAndUpdateXAndYCoordinates();
-    printCoordinates();
+    //printCoordinates();
     
     //printEncoderPulseValues();
     //Serial.println("\nDistance travelled: ");
