@@ -189,15 +189,25 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 
 ## Minimum
 
-> "The code shall be under version control." - Done in GitHub.
+> "The code shall be under version control." 
 
-> "There shall be a Software Design Description document where each source code component is described." - You are reading it now!
+Done in GitHub.
 
-> "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." - We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
+> "There shall be a Software Design Description document where each source code component is described." 
 
-> "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." - Missing from some members.
+You are reading it now!
 
-> "An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." - Not done.
+> "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." 
+
+We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
+
+> "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." 
+
+Missing from some members.
+
+> "An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." 
+
+Not done.
 
 
 
