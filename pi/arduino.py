@@ -12,7 +12,6 @@ from queue     import Queue
 
 import time
 import serial
-# import select
 
 
 
@@ -33,6 +32,7 @@ send_dict = {'FORWARD'      : '1',
              'Hello'        : 'H',
              'ack'          : '!',
              'nok'          : '?'}
+
 recv_dict = dict( (v,k) for (k,v) in send_dict.items() )
 
 
@@ -83,7 +83,7 @@ class Arduino(Thread):
         print('arduinoHello(): ready')
 
 
-    def send_serial(self, message):
+    def send_serial(self, message: str):
         """
         Send a message over the serial connection.
 
@@ -103,7 +103,7 @@ class Arduino(Thread):
 
         Returns:
             A string with newline characters stripped.
-        
+
         RNR4
         """
         line = self.ser.readline()

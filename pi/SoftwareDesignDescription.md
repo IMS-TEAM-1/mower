@@ -1,5 +1,29 @@
 
-# Mower Pi Zero documentation
+# Mower: Raspberry Pi Software Design Description
+
+The sub-modules in this solution all have three functions:
+
+    * `order(message, payload)`
+    * `to_controller(message, payload)`
+    * `run()`
+
+and in many cases
+
+    * `hello()`
+
+The function `run()` is what's needed by the `Thread` class (called by the function `Thread.start()`).
+The communication modules are all non-blocking, often making use of the function `os.select()` to check if there's any reading to be done from their sockets/handles.
+The modules are controlled by the `main()` function, which are told through the function `order()` that each sub-module has.
+When a sub-module receives a message it goes back to `main()` through the function `to_controller()`.
+
+The function `hello()` is when an initial handshake makes sense.
+Such as the first communication over a serial connection, or announcing the Bluetooth device as connectable.
+
+
+This document is just an overview.
+The functions themselves are all commented.
+This document is just to help a reader quickly get into our code structure.
+
 
 
 ## `main.py`
@@ -14,11 +38,11 @@ def main():
     sub2 = Sub2()
     sub3 = Sub3()
 
-    sub1.init() # initialize hardware
-    sub2.init()
-    sub3.init()
+    sub1.hello() # initialize hardware
+    sub2.hello()
+    sub3.hello()
 
-    sub1.start() # start up threads
+    sub1.start() # start up threads (function run())
     sub2.start()
     sub3.start()
 
@@ -29,147 +53,75 @@ def main():
 
         if src == sub1:
             if msg == 'TYPE1':
-                do_thing_1()
+                sub2.order('DO_THING_1')
             if msg == 'TYPE2':
-                do_thing_2()
-                sub2.order('TYP2_CONSEQUENCE')
+                sub2.order('DO_THING_2', payload)
+                sub3.order('TYPE2_CONSEQUENCE')
 
-        if src == sub2:
+        elif src == sub2:
             # the rest of the handlers
             pass
+
+        elif src == sub3:
+            # more management
+            pass
+
+        else:
+            print(f'main(): unknown message <<<{(src,msg,payload)}>>>')
 ```
+
 
 
 ## `arduino.py`
 
 Reads and writes over serial connection to the Arduino, which manages motors, top LEDs, gyroscope and other things.
+The actual serial Tx/Rx are done by these:
 
-```{.python}
-def send_serial(self, message):
-    print(f'ARDUINO <==== <<{message}>>')
-    self.ser.write((message + '\r\n').encode('ascii'))
-
- is responsible of sending the data over to arduino via serial connection.
-
-def receive_serial(self):
-    line = self.ser.readline()
-    line = str(line.decode('utf-8').strip())
-    self.ser.reset_input_buffer()
-
-    print(f'ARDUINO ====> <<{line}>>')
-    return line
-```
-
- is responsible of receiving data from the arduino over the serial connection. it also return a string with stripped newline characters.
-
+    * `send_serial(message: str)`
+    * `receive_serial() -> str`
 
 It also keeps track of the state the mower is currently set to (AUTONOMOUS, MANUAL etc.).
 
-It also contains the first connection check with arduino. Both the mower and raspberry pi should wait until arduino sends back that it is ready.
+Because of communication problems (dropped characters) a quick fix changing the protocol from long strings like `'MANUAL:FORWARD'` to `'1'` was done.
+This is why there's a `dict` in the top of the file.
 
-```{.python}
-def hello(self):
-        greeting        = send_dict['Hello']
-        self.send_serial(greeting)
-        time.sleep(0.050) # let's wait before reading
-        received        = self.receive_serial()
-        expected_reply  = greeting + send_dict['ack']
 
-        while received != expected_reply:
-            print('arduinoHello(): not ready, '
-                  + f'instead got <<<{received}>>>')
-            self.send_serial(send_dict['Hello'])
-            time.sleep(2)
-            received = self.receive_serial()
-        print('arduinoHello(): ready')
-```
 
 ## `backend.py`
 
-Server communication. Deals with uploading images to the server among other things. Also receiving position data.
+Responsible for server communication.
+Deals with uploading images to the server among other things.
+Also receiving position data.
 
-```{.python}
-def can_reach_backend:
-    tries       = 1
-    cmd         = f'ping -c {tries}'            + \
-                   f' -w {timeout_sec}'         + \
-                   f' -O {self.backend_adr}'    + \
-                   ' 1> /dev/null'
-     ret = os.system(cmd)
-     if ret == 0:
-         # print(f'BACKEND: could not reach {self.backend_adr} for ping.')
-            pass
-     return not bool(ret)
-```
+These are the unique functions provided:
 
- Testing function if backend is responsive. Run before communication.
- This test should avoid crashes.
+    * `can_be_reached(timeout_sec = 2)`
+    * `get_user_json() -> str`
+    * `get_state() -> str`
+    * `encode_picture_to_base64(filepath: str)`
+    * `post_pos(x, y)`
+    * `post_pix(x, y, pic64)`
 
-```{.python}
-def get_state:
-     get_uri     = self.base_uri + 'mowers'
-     print(f'\tgetting request: {get_uri}')
-     mower       = requests.get(get_uri)
-     mower_info  = json.loads(mower.text)[0]
-     be_state    = mower_info['state']
 
-     print(f'Backend reports state {be_state}')
-     return be_state
-```
+Most of these are pretty self explanatory by their names and arguments, but these are some notes for better understanding:
 
- gets the state of the mower from backend and returns it, then the state should be send to the arduino via "arduino.py" module.
+The state is held by the backend, so it needs to be constantly polled for any changes.
+If the mower is to change state (from `'AUTONOMOUS'` to `'MANUAL'` or similar) then that can only happen if the function `get_state()` gets a result different from what it previously had.
 
-```{.python}
-def encode_picture_to_base64:
- with open(filepath, 'rb') as image_file:
-         data = base64.b64encode(image_file.read())
- return data.decode('utf-8')
-```
-      
- this functions is responsible of converting the taken image to base64 to further send it to the backend via def post_pic function.
+As part of the specification, uploading pictures needs to happen.
+This is done in base64 format, together with coordinates, as can been seen by the function and argument names.
 
-```{.python}
-def post_pos:
- data = {'key1' : x,
-         'key2' : y,
-         }
- get_uri  = self.base_uri + '/mowers/1/locations'
- requests.post(get_uri, data = data)
-```
 
- this function is responsible of posting the mowers location to the backend, the location is collected from the serial commuinication between the arduino and the raspberry pi in the "arduino.py" module.
-
-```{.python}
-def post_pic:
- data = {"x" : x,
-         "y" : y,
-         "image" : pic64 }
- get_uri  = self.base_uri + '/mowers/1/images'
- requests.post(get_uri, data = data)
-```
-
- this function is responsible of posting the picture in base64 to the backend along side of the position of where the picture was taken.
 
 ## `camera.py`
-```{.python}
- def capture(self, img_name):
-     if s.PIZERO:
-         self.__cam = PiCamera()
-         self.__cam.resolution = self.resolution
 
-     time.sleep(2)
-     path = os.path.join(s.CAMERA_DIRECTORY, img_name)
-     if s.PIZERO:
-         self.__cam.capture(path)
-         self.__cam.close()
-         return path
-     else:
-         print('Camera module: fake image at\n\t' + path)
-         return path
-```
+Only deals with the queue as input: get a message, take a picture.
+Is done through its only unique function:
 
-Only deals with the queue as input. Get a message, take a picture. It is responsible for taking a pictures when it gets commands from the arduino.
-It also gets the picture resolution and the directory to where to store the picture.
+    * `capture(img_name)`
+
+Its constructor takes the picture resolution and the directory to where to store it.
+Sends a message up to the controller when done.
 
 
 
@@ -183,44 +135,35 @@ Often the handle is stdin, but others may be used.
 
 Mainly a way to run sequences of test code.
 
+
+
+
 ## `settings.py`
 
-This file is self-explanatory, it contains a multitude of defines and other data types used within the software to avoid magic numbers and improve readability.
+This file is self-explanatory, it contains a multitude of defines (in the C macro sense) and other data types used within the software to avoid magic numbers and improve readability.
+
+Here are some lines, to give an understanding of what's stored in it:
+
+```{.python}
+ARDUINO_SERIAL_BAUD = 57600
+CAMERA_SCREENSHOT_RESOLUTION = (1024, 768)
+BLUETOOTH_UUID = '94f39d29-7d6d-437d-973b-fba39e49d4ee'
+```
+
+
 
 ## `btserver.py`
-```{.python}
-def hello(self):
-     self.server_socket = bt.BluetoothSocket(bt.RFCOMM)
-     self.server_socket.bind((self.uuid, bt.PORT_ANY))
-     self.server_socket.listen(1)
-     self.server_port = self.server_socket.getsockname()[1]
 
-     bt.advertise_service(
-         self.server_socket,
-         "panzermower",
-         service_id      = self.uuid,
-         service_classes = [ self.uuid, bt.SERIAL_PORT_CLASS ],
-         profiles        = [ bt.SERIAL_PORT_PROFILE ] )
-```
 
- this function is responsible of Initialize the BT to allow connection with the app.
- Advertises the BT device as connectable server.
+These are the unique functions for this module:
 
-```{.python}
-def connect_to_app(self):
-     self.client_socket, self.client_info = self.server_socket.accept()
-     print(f'BTSERVER: ({self.client_socket},{self.client_info}) connected')
-     return True
-```
+    * `connect_to_app()`
+    * `recieve_message_from_app()`
+    * `close_connection()`
 
- this function is responsible for creating a socket connection to the application.
+`hello()` is responsible for initializing the Bluetooth device and to advertise it as something that can be connected to.
+In the same non-blocking nature as all the other modules it only reads a message when is ready.
+If there's ever an exception once a connection has been established, then that will be caught, the server brought down and up again - restarting it with `hello()`.
 
-```{.python}
-def close_connection(self):
-     self.client_socket.close()
-     self.server_socket.close()
-     print('BTSERVER: close_connection()')
-```
 
- this function is reesponsible of closing socket connection.
 
