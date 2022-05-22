@@ -360,6 +360,9 @@ bool ackReviecedMessage(){
     case(Standby):
       currentState = STANDBY;
       sendMessageAck(getSerialDataRecieved());
+      //Reset map coordinates
+      resetCoordinates();
+      resetEncoderValues();
       return true;
     case(CaptureDone):
       setImageCaptured(true);
@@ -394,6 +397,8 @@ bool ackReviecedMessage(){
       sendMessageAck(getSerialDataRecieved());
       return true;
     case(Diagnostic):
+      resetCoordinates();
+      resetEncoderValues();
       currentState = DIAGNOSTIC;
       sendMessageAck(getSerialDataRecieved());
       return true;

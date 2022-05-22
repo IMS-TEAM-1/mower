@@ -29,6 +29,8 @@ void doAutonomousLineFollowerProcedure(){
 
   calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
 
+  driveTime(1000, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
   doReverseProcedure(); //Back up, rotate, and continue moving autonomously
 }
 
@@ -37,6 +39,12 @@ void doAutonomousUltraSonicProcedure(){
   stopMotorsMS(1000); //Make sure that the mower has stopped
 
   calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
+
+  driveDistance(200, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
+  stopMotorsMS(500);
+
+  calculateAndUpdateXAndYCoordinates();
   
   sendSerialUltraSonicTriggered(); //Back up, rotate, and continue moving autonomously
   
@@ -48,7 +56,6 @@ void doAutonomousUltraSonicProcedure(){
 //This function simply does a simple reversing manuever
 void doReverseProcedure(){
   activateAutonomousLEDs();
-  driveTime(1500, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
 
   calculateAndUpdateXAndYCoordinates();
   
