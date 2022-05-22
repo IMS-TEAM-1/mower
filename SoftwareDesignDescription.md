@@ -72,10 +72,12 @@ If a line if found, this is the procedure the mower follows:
 ```{.ino}
 //If line follower triggered, do this
 void doAutonomousLineFollowerProcedure(){
-  stopMotorsMS(1000);	//Make sure that the mower has stopped
+  stopMotorsMS(1000); //Make sure that the mower has stopped
 
-  calculateAndUpdateXAndYCoordinates();	//Send the current position to the Pi
+  calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
 
+  driveTime(1000, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
+  
   doReverseProcedure(); //Back up, rotate, and continue moving autonomously
 }
 ```
@@ -110,15 +112,21 @@ The code is rather similar to the code for the ultrasonic sensor, seen here:
 ```{.ino}
 //If ultra sonic sensor triggered, do this
 void doAutonomousUltraSonicProcedure(){
-  stopMotorsMS(1000);	//Make sure that the mower has stopped
+  stopMotorsMS(1000); //Make sure that the mower has stopped
 
-  calculateAndUpdateXAndYCoordinates();	//Send the current position to the Pi
+  calculateAndUpdateXAndYCoordinates(); //Send the current position to the Pi
+
+  driveDistance(200, BACKWARD, MOTOR_SPEED_AUTONOMOUS_BACKWARD * PERCENTAGE_TO_PWM_FACTOR);
   
-  sendSerialUltraSonicTriggered();
+  stopMotorsMS(500);
+
+  calculateAndUpdateXAndYCoordinates();
+  
+  sendSerialUltraSonicTriggered(); //Back up, rotate, and continue moving autonomously
   
   waitForImageCaptured();
 
-  doReverseProcedure(); //Back up, rotate, and continue moving autonomously
+  doReverseProcedure();
 }
 ```
 
@@ -141,13 +149,13 @@ void waitForImageCaptured(){
   
   while(doLoop){
     stopMotorsMS(1000);
-    doSerialTick(false);	//We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
-    if(recievedCaptureAck()){
+    doSerialTick();  //We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
+    if(getImageCaptured()){
+      setImageCaptured(false);
       doLoop = false;
     }
     else if(millis() > timeToCapture) {
-      Serial.println(getRecievedSerialDataFirstPart());
-      Serial.println("ERROR IN CAMERA CAPTURE");
+      setImageCaptured(false);
       doLoop = false;
     }
   }
