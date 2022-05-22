@@ -175,7 +175,7 @@ The non-drive-command is to do a self-diagnostic.
 
 * "The mower shall use a camera and send images to the backend REST API when collision avoidance occurs."
 
-As mentioned under "#M.1.2", the Arduino sends "CAPTURE" to the Pi and waits for an image to be taken.
+As mentioned under `#M.1.2`, the Arduino sends `CAPTURE` to the Pi and waits for an image to be taken.
 This is done when the ultrasonic sensor is triggered during autonomous driving.
 
 The true implementation of fulfilling the requirement is found within the Pi SDD.
@@ -185,83 +185,66 @@ The true implementation of fulfilling the requirement is found within the Pi SDD
 
 # Process requirements
 
+
+
 ## Minimum
 
-* "The code shall be under version control." - Done in GitHub.
-* "There shall be a Software Design Description document where each source code component is described." - You are reading it now!
-* "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." - We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
-* "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." - Missing from some members.
-* "An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." - Not done.
+> "The code shall be under version control." - Done in GitHub.
+
+> "There shall be a Software Design Description document where each source code component is described." - You are reading it now!
+
+> "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." - We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
+
+> "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." - Missing from some members.
+
+> "An analysis of the project shall be done (including process, technical aspects, collaboration and results) and documented in a Lessons Learned Document." - Not done.
+
+
+
 
 ## Medium
 
-* "The Software Design Description shall contain low level requirements linked to the high level requirements in this document as needed in order to implement the functionality." - From Trello:
 
-RNR1. Retrieve line follower and ultrasonic data. - 2 (Difficulty, abstract. RNR = Requirement Number)
-
-
-RNR2. Be able to control the motors. - 2
+> "The Software Design Description shall contain low level requirements linked to the high level requirements in this document as needed in order to implement the functionality."
 
 
-RNR3. Be able to install Raspbian/Raspberry Pi OS. - 1
+These points are from our Trello board.
+RNR is abbreviation of "Requirement NumbeR".
+The numbers on each line is our difficulty estimation of the task.
+
+  * RNR1. Retrieve line follower and ultrasonic data. - 2
+  * RNR2. Be able to control the motors. - 2
+  * RNR3. Be able to install Raspbian/Raspberry Pi OS. - 1
+  * RNR4. Establish communication between Raspberry Pi and Arduino. - 2
+  * RNR5. Capture a picture with Raspberry Pi. - 3
+  * RNR6. Bug testing for each sprint. - 3
+  * RNR7. Transition form defined loop code to communication based code. - 2
+  * RNR8. Manage Wi-Fi connections. - 3
+  * RNR9. Establish a communication between the Pi and backend over Internet. - 3
+  * RNR10. Handle encoder and gyroscope data. - 7, Edited: 2
+  * RNR11. Implement all API-requests and posts. - 3
+  * RNR12. Implement dead reckoning function. - 3, Edited: 5
+  * RNR13. Document code in Arduino. - 2
+  * RNR14. Thread solution for Pi code. - 8
+  * RNR15. Do this SDD. - 2
+  * RNR16. Set up and implement serial protocol. - 3, Edit 1: 5, Edit 2: 7
+  * RNR17. Implement Pi Bluetooth. - 2, Edited: 5
+  * RNR18. Document code in Pi. - 2
+  * RNR19. Do complete system test. - 8
+
+>  "Each Low level requirement or related software work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
+
+> "The sum of all tasks and estimated efforts shall be compared with the time frame and resource availability of the project and planned accordingly." - Done when project is over.
+
+> "Completion of tasks and used effort shall be compared with the plan and the estimates." - Done when project is over.
 
 
-RNR4. Establish communication between Raspberry Pi and Arduino. - 2
-
-
-RNR5. Capture a picture with Raspberry Pi. - 3
-
-
-RNR6. Bug testing for each sprint. - 3
-
-
-RNR7. Transition form defined loop code to communication based code. - 2
-
-
-RNR8. Manage Wi-Fi connections. - 3
-
-
-RNR9. Establish a communication between the Pi and backend over Internet. - 3
-
-
-RNR10. Hanlde encoder and gyroscope data. - 7, Edited: 2
-
-
-RNR11. Implement all API-requests and posts. - 3
-
-
-RNR12. Implement dead reckoning function. - 3, Edited: 5
-
-
-RNR13. Document code in Arduino. - 2
-
-
-RNR14. Thread solution for Pi code. - 8
-
-
-RNR15. Do this SDD. - 2
-
-
-RNR16. Set up and implement serial protocol. - 3, Edited 1: 5, Edited 2: 7
-
-
-RNR17. Implement Pi Bluetooth. - 2, Edited: 5
-
-
-RNR18. Document code in Pi. - 2
-
-
-RNR19. Do complete system test. - 8
-
-
-
-* "Each Low level requirement or related software work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
-* "The sum of all tasks and estimated efforts shall be compared with the time frame and resource availability of the project and planned accordingly." - Done when project is over.
-* "Completion of tasks and used effort shall be compared with the plan and the estimates." - Done when project is over.
 
 # Maximum
 
-* "The Software Design Document shall contain an architectural overvire of the system and its sub components." - An overview of the Arduino/mower is given here, a complete overview will be done in another document.
-* "The source code shall be traceable to respective low level requirement." - Vital parts explained in this document.
-* "Test Cases shall be defined for all requirements and a test report produced" - Explained under the heading `diagnostic.ino`. This is solved by self-diagnostics which either returns "DIAGNOSTIC:ok" or for example "DIAGNOSTIC:2,3,5" if module 2, 3, and 5 failed, making this the "report".
+> "The Software Design Document shall contain an architectural overvire of the system and its sub components." - An overview of the Arduino/mower is given here, a complete overview will be done in another document.
+
+> "The source code shall be traceable to respective low level requirement." - Vital parts explained in this document.
+
+> "Test Cases shall be defined for all requirements and a test report produced" - Explained under the heading `diagnostic.ino`. This is solved by self-diagnostics which either returns `DIAGNOSTIC:ok` or for example `DIAGNOSTIC:2,3,5` if module 2, 3, and 5 failed, making this the "report".
 
