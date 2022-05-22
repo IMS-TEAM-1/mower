@@ -76,24 +76,6 @@ void doReverseProcedure(){
  * 
  * For RNR5
  */
-//void waitForImageCaptured(){
-//  bool doLoop = true;
-//  long timeToCapture = millis() + CAMERA_CAPTURE_TIME;
-//  
-//  while(doLoop){
-//    stopMotorsMS(1000);
-//    doSerialTick(false);  //We only want to read if any message is on the bus, we do not want to acknowledge it since the message should be an acknowledgment to begin with
-//    if(recievedCaptureAck()){
-//      doLoop = false;
-//    }
-//    else if(millis() > timeToCapture) {
-//      Serial.println(getRecievedSerialDataFirstPart());
-//      Serial.println("ERROR IN CAMERA CAPTURE");
-//      doLoop = false;
-//    }
-//  }
-//}
-
 void waitForImageCaptured(){
   bool doLoop = true;
   long timeToCapture = millis() + CAMERA_CAPTURE_TIME;

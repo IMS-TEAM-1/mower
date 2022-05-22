@@ -1,9 +1,9 @@
 /*
  * This function is run when the state of the mower is set to "diagnostic".
  * It checks the vital parts of the mower system and returns the functions that failes (if any did)
- * It firsts acks the "DIAGNOSTIC"-message to confirm the Pi that the mower is indeed running a diagnostics.
- * Afterwards, it does testing of each module and returns a string designed as "DIAGNOSTIC:good" if everythis is well.
- * Or, it returns something like "DIAGNOSTIC:1,3,7" if module 1, 3 and 7 was malfunctioning.
+ * It firsts acks the "D"-message to confirm the Pi that the mower is indeed running a diagnostics.
+ * Afterwards, it does testing of each module and returns a string designed as "D0" if everythis is well.
+ * Or, it returns something like "D1,3,7" if module 1, 3 and 7 was malfunctioning.
  */
 
 diagntosicModule_t moduleCurrentlyDiagnosing = Diag_Main;
@@ -293,23 +293,6 @@ bool doLinefollowerSensorDiag(){
 
   return isFunctional;
 }
-
-//void doSerialComDiag(){
-//  bool moduleSucceeded = false;
-//
-//  clearStoredMessages();
-//
-//  if(getRecievedSerialDataFirstPart() == "" && getRecievedSerialDataSecondPart() == ""){
-//    String s_temp = "DIAGNOSTIC_SERIAL:TEST";
-//    checkAndSetRecievedMessage(s_temp);
-//
-//    if(getRecievedSerialDataFirstPart() == "DIAGNOSTIC_SERIAL" && getRecievedSerialDataSecondPart() == "TEST"){
-//      moduleSucceeded = true;
-//    }
-//  }
-//
-//  if(!moduleSucceeded){storedFaultCodes.enqueue(8);}
-//}
 
 void doSerialComDiag(){
   bool moduleSucceeded = false;

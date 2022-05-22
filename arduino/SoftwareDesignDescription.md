@@ -211,9 +211,9 @@ void calculateAndUpdateXAndYCoordinates(){
   
   float calcTemp = ((getAverageGyroValue() + LOCALIZATION_CIRCLE_ROTATION_OFFSET) * DEGREES_TO_RADIAN_FACTOR);
 
-  newYCoordinate = getCoordinateY() + (getDistanceTravelled() * sin(calcTemp));
-  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) * -1)); //*-1 since we want the x-axis to be inverted due to the offset of 90 degrees
-
+  newYCoordinate = getCoordinateY() + (getDistanceTravelled() * (sin(calcTemp)) *-1); //*-1 due to Canvas-inversion in app
+  newXCoordinate = getCoordinateX() + (getDistanceTravelled() * (cos(calcTemp) *-1)); //same as above
+  
   setCoordinateX(newXCoordinate);
   setCoordinateY(newYCoordinate);
 
@@ -292,45 +292,48 @@ This file contains two simple functions for both the IR-sensor and the ultrasoni
 ## "serial.ino"
 
 This file handles all of the serial communication done between the Arduino and the Pi.
-How our own protocol is defined is that firstly, the type of parameter is sent and sometimes some type of either acknowedlgeemnt or payload after a colon.
-However, if the Arduino recieves some type of message it does not support, it sends back the message followed by a colon and "nok".
+The arduino simply sends back either the message followed by an exclamation mark or a question mark, depening on if the Arduino acknoweleged the message or not.
+However, if the Arduino recieves some type of message it does not support, it sends back the message followed by a question mark: "SOMEBADSTRING?".
+
+This protocol was first developed by sending complete strings, as: "MANUAL:FORWARD".
+However, due to data getting lost in the serial communication, it was changed to send simple characters.
 
 What the messages the mower can retrieve and understand are:
 
-1. STANDBY (makes the mower stand still)
-2. AUTONOMOUS (makes the mower change to be autonomous)
+1. "S" (makes the mower stand still)
+2. "A" (makes the mower change to be autonomous)
 
-3. MANUAL:NONE (makes the mower change to manual state (manual control by Bluetooth) but without any direction (making it stand still))
-4. MANUAL:FORWARD (change to manual (Bluetooth control), and move forward)
-5. MANUAL:BACKWARD (change to manual (Bluetooth control), and move backward)
-6. MANUAL:LEFT (change to manual (Bluetooth control), and move left)
-7. MANUAL:RIGHT (change to manual (Bluetooth control), and move right)
+3. "0" (makes the mower change to manual state (manual control by Bluetooth) but without any direction (making it stand still))
+4. "1" (change to manual (Bluetooth control), and move forward)
+5. "3" (change to manual (Bluetooth control), and move backward)
+6. "4" (change to manual (Bluetooth control), and move left)
+7. "2" (change to manual (Bluetooth control), and move right)
 
-8. DIAGNOSTIC (makes the mower perform a self-diagnostic)
+8. "D" (makes the mower perform a self-diagnostic)
 
 
 Example when successful:
 
-1. Pi: "AUTONOMOUS"
-2. Arduino: "AUTONOMOUS:ack"
+1. Pi: "A"
+2. Arduino: "A!"
 
 Example when not successful:
 
-1. Pi: "AUTONOMOUSS"
-2. Arduino: "AUTONOMOUSS:nok"
+1. Pi: "AS"
+2. Arduino: "AS?"
 
 
 Another example of when moving in manual mode:
 
 Example when successful:
 
-1. Pi: "MANUAL:FORWARD"
-2. Arduino: "FORWARD:ack"
+1. Pi: "1"
+2. Arduino: "1!"
 
 Example when not successful:
 
-1. Pi: "MANUAL:FORWARDD"
-2. Arduino: "MANUAL:FORWARDD:nok" - Note: it says ":nok" on the entire message it recieved, which was "MANUAL:FORWARDD".
+1. Pi: "11"
+2. Arduino: "11??" - Note: it says "?" on the entire message it recieved, which was "11".
 
 
 The main 'tick-function' handling the serial communication can be found within the file.
@@ -339,21 +342,23 @@ However, it should not overwhelm the backend, so it updates periodically (set no
 The function is defined as:
 
 ```{.ino}
-void doSerialTick(bool ack){
-  if(millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){	//Go in if we should update
+void doSerialTick(){
+  if(millis() - timeAtLastSerialUpdate > SERIAL_UPDATE_FREQUENCY_MS){
     if(numberOfTicksMissed > MAX_ALLOWED_MISSED_SERIAL_TICKS){
       currentState = STANDBY;
-      numberOfTicksMissed = 0; //Otherwise, the mower get locked. Can be removed if the mower has to be reset if any problem occurs with the communication
+      //Otherwise, the mower get locked
+      numberOfTicksMissed = 0;
     }
     else{
       timeAtLastSerialUpdate = millis();
       
-      readSerialData(ack);	//The ack follows within the functions until we either do or doesnt acknowledge the message.
+      readSerialData();
 
-      numberOfTicksMissed = 0;	//Should be removed when in final use, only here for when testing through Arduino monitor
+      //Should be removed when in final use, only here for when testing through Arduino monitor
+      numberOfTicksMissed = 0;
     }
   }
-  clearStoredMessages();	//When we have handled the messages, reset them to avoid that the mower repeats some actions
+  clearStoredMessages();
 }
 ```
 
