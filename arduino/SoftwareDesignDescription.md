@@ -346,26 +346,26 @@ What the messages the mower can retrieve and understand are:
 
 Example when successful:
 
-  1. Pi: "A"
-  2. Arduino: "A!"
+  1. Pi: `"A"`
+  2. Arduino: `"A!"`
 
 Example when not successful:
 
-  1. Pi: "AS"
-  2. Arduino: "AS?"
+  1. Pi: `"AS"`
+  2. Arduino: `"AS?"`
 
 
 Another example of when moving in manual mode:
 
 Example when successful:
 
-  1. Pi: "1"
-  2. Arduino: "1!"
+  1. Pi: `"1"`
+  2. Arduino: `"1!"`
 
 Example when not successful:
 
-  1. Pi: "11"
-  2. Arduino: "11??" - Note: it says "?" on the entire message it received, which was "11".
+  1. Pi: `"11"`
+  2. Arduino: `"11??"` - Note: it says `"?"` on the entire message it received, which was `"11"`.
 
 
 The main 'tick-function' handling the serial communication can be found within the file.
