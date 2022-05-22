@@ -160,7 +160,7 @@ class Arduino(Thread):
         period = 0.050 # 50 ms == 20 Hz
         running = True
 
-        ard_states = ['AUTONOMOUS', 'MANUAL', 'CAPTURE', 'STANDBY']
+        ard_states = ['AUTONOMOUS', 'MANUAL', 'CAPTURE', 'STANDBY', 'DIAGNOSTIC']
         ard_state = 'AUTONOMOUS'
 
 
@@ -242,6 +242,24 @@ class Arduino(Thread):
                     else:
                         ard_state = 'STANDBY'
 
+                elif message == 'DIAGNOSTIC':
+                    self.send_serial(send_dict['DIAGNOSTIC'])
+                    ard_state = 'DIAGNOSTIC'
+                    diagnostic_ok = send_dict['DIAGNOSTIC'] + send_dict['NONE']
+                    do_loop = True
+                    while do_loop:
+                        if len(self.receive_serial()) > 0:
+                            from_ard = self.receive_serial()
+                            do_loop = False
+                    if from_ard == diagnostic_ok:
+                        print(f'Recieved Diagnostic OK!')
+                    elif len(from_ard) > 0:
+                        if from_ard[0] == send_dict['DIAGNOSTIC']:
+                            failed_diag_modules = from_ard[1:]
+                            print(f'Diagnostics NOT OK!')
+                        else:
+                            print(f'DIAG: recieved invalid char:    Got {from_ard}')
+
                 # The camera just took a picture!
                 # Let's go again!
                 elif message == 'CAPTURE_DONE':
@@ -268,22 +286,28 @@ class Arduino(Thread):
                 ## first check without colon
                 ser_message = self.receive_serial()
 
-                # The arduino tells us it found an obstacle
-                if ser_message == recv_dict['CAPTURE']:
-                    self.__to_controller('CAPTURE')
-                    ard_state = 'CAPTURE'
+                if len(ser_message) > 0:
+                    charRecieved = ser_message[0]
 
-                # Deal with 'POS:123,78989'
-                elif ser_message[0] == recv_dict['POS']:
-                    coord_str   = ser_message[1:]
-                    [x,y]       = coord_str.split(',')
-                    self.__to_controller( 'POS', (int(x), int(y)) )
+                    # The arduino tells us it found an obstacle
+                    if charRecieved == send_dict['CAPTURE']:
+                        self.__to_controller('CAPTURE')
+                        ard_state = 'CAPTURE'
+
+                    # Deal with 'POS:123,78989'
+                    elif charRecieved == send_dict['POS']:
+                        coord_str   = ser_message[1:]
+                        [x,y]       = coord_str.split(',')
+                        self.__to_controller( 'POS', (int(x), int(y)) )
+
+                    else:
+                        # We did not catch this message
+                        print('\tARD: unhandled serial_receive: '
+                              + f'<<<{ser_message}>>>')
+
 
                 else:
-                    # We did not catch this message
-                    print('\tARD: unhandled serial_receive: '
-                          + f'<<<{ser_message}>>>')
-
+                    print('ARDUINO: Only recieved newline (empty message).')
             else:
                 time.sleep(period)
 

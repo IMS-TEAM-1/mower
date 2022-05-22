@@ -97,7 +97,7 @@ def main():
 
             if message == 'CAPTURE': # we hit an obstacle
                 # arduino has stopped by itself
-                camera.order( ('CAPTURE', 'image.jpg') )
+                camera.order( 'CAPTURE', 'image.jpg' )
                 waiting_for_camera = True
 
             if message == 'POS':
@@ -121,8 +121,6 @@ def main():
 
         elif source is backend:
 
-            print('main() got backend message!')
-
             if message == 'GOTO_BT':
                 btserver.order('BACKEND_SAYS_ACTIVATE_BT')
                 print('Turning on BT controls')
@@ -131,7 +129,6 @@ def main():
                 ok_state = state in s.ARDUINO_VALID_STATES
                 if ok_state:
                     if payload != state:
-                        arduino.order('SET_STATE', payload)
                         state = payload
                         if state == 'MANUAL':
                             arduino.order('MANUAL','NONE')
@@ -144,7 +141,8 @@ def main():
                         elif state == 'DIAGNOSTIC':
                             arduino.order('DIAGNOSTIC')
                     else:
-                        print(f'main(): state was already {payload}')
+                        # print(f'main(): state was already {payload}')
+                        pass
                 else:
                     print(f'main(): invalid state: {payload}')
 
@@ -161,20 +159,19 @@ def main():
                 running = False
 
             elif message == 'test1':
-                arduino.order('AUTONOMOUS')
-                pass
+                arduino.order('MANUAL', 'STOP')
 
             elif message == 'test2':
                 backend.order('GET_STATE')
-                pass
 
             elif message == 'test3':
                 btserver.order('BACKEND_SAYS_ACTIVATE_BT')
-                pass
 
             elif message == 'test4':
                 btserver.order('BACKEND_SAYS_DEACTIVATE_BT')
-                pass
+
+            elif message == 'test5':
+                arduino.order('DIAGNOSTIC')
 
         else:
             print( 'main() unhandled message:')

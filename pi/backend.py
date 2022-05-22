@@ -26,11 +26,12 @@ class Backend(Thread):
         self.base_uri               = f'http://{adr}:{port}/'
         self.orders                 = Queue(maxsize = 10)
         self.q_to_controller        = q_to_controller
+        self.mower_id               = 1 # should be overwritten in hello()
 
     def __del__(self):
         # terminate connection to backend
-
         pass
+
     def can_reach_backend(self, timeout_sec=2):
         """
         Testing function if backend is responsive. Run before communication.
@@ -64,14 +65,19 @@ class Backend(Thread):
         RNR9, RNR11
         """
         get_uri     = self.base_uri + 'mowers'
-        print(f'\tgetting request: {get_uri}')
-        mower       = requests.get(get_uri)
-        mower_info  = json.loads(mower.text)[0]
-        be_state    = mower_info['state']
-
-        print(f'Backend reports state {be_state}')
+        # STFU!
+        # print(f'\tgetting request: {get_uri}')
+        try:
+            mower       = requests.get(get_uri)
+            mower_info  = json.loads(mower.text)[0] ### lol test
+            self.mower_id = mower_info['id']
+            be_state    = mower_info['state']
+            # STFU!
+            # print(f'Backend reports state {be_state}')
+        except:
+            be_state = None
+            print('Backend reports no state from server')
         return be_state
-
 
     def encode_picture_to_base64(self, filepath):
         """
@@ -89,11 +95,12 @@ class Backend(Thread):
 
         RNR9, RNR11
         """
-        data = {'key1' : x,
-                'key2' : y,
+        data = {'x' : x,
+                'y' : y,
                 }
-        get_uri  = self.base_uri + '/mowers/1/locations'
-        requests.post(get_uri, data = data)
+        get_uri  = f'{self.base_uri}mowers/{self.mower_id}/locations'
+        response = requests.post(url = get_uri, data = data)
+        print(f'Response from position {get_uri}: {response}')
 
 
     def post_pic(self, x, y, pic64):
@@ -102,11 +109,12 @@ class Backend(Thread):
 
         RNR9, RNR11
         """
-        data = {"x" : x,
-                "y" : y,
-                "image" : pic64 }
-        get_uri  = self.base_uri + '/mowers/1/images'
-        requests.post(get_uri, data = data)
+        data = {'x' : x,
+                'y' : y,
+                'image' : pic64 }
+        get_uri  = self.base_uri + f'mowers/{self.mower_id}/images'
+        response = requests.post(url = get_uri, data = data)
+        print(f'Response from image {get_uri}: {response}')
 
 
     def order(self, message, payload = None):
@@ -127,7 +135,7 @@ class Backend(Thread):
         running = True
 
         period = 0.2
-        period_for_backend_requests = 10.0
+        period_for_backend_requests = 1.0
         time_left_until_be_state_req = period_for_backend_requests
 
         last_known_position = (0,0)

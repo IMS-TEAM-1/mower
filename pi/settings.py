@@ -6,7 +6,7 @@ import sys
 
 # This is a define that will enable testing to be done
 # on computers that are NOT raspberry pis
-PIZERO  = False
+PIZERO  = True
 ON_UNIX = os.name == 'posix'
 
 
@@ -80,3 +80,4 @@ MOBILE_BLUETOOTH_DUMMY = 'some configuration loldunno'
 #########################
 #########################
 BLUETOOTH_UUID = '94f39d29-7d6d-437d-973b-fba39e49d4ee'
+#BLUETOOTH_UUID = '0000110a-0000-1000-8000-00805f9b34fb'

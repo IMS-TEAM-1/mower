@@ -83,7 +83,9 @@ class Camera(Thread):
             if message == 'CAPTURE':
                 filename = 'CAPTURED_PIC.jpg' if (payload is None) \
                             else payload
+                print('CAPTURING PICTURE')
                 path = self.capture(filename)
+                print('</CAPTURING PICTURE>')
                 self.to_controller('CAPTURE_DONE', path)
 
 

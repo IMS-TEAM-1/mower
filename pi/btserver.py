@@ -19,7 +19,7 @@ cmds_dict = {'1' : 'FORWARD' ,
              '4' : 'LEFT'    ,
              '2' : 'RIGHT'   ,
              '0' : 'STOP'    ,
-             '0' : 'NONE'    }
+             '0' : 'NONE'    } # double key is for complementary dict
 
 class BtServer(Thread):
     """
@@ -141,14 +141,18 @@ class BtServer(Thread):
                     try:
                         bt_data = self.recieve_message_from_app() #Is blocking
                         bt_data = bt_data.decode('UTF-8').strip()
-                        if len(bt_data) > 0:
-                            #Send data to main
+                        if len(bt_data) == 1:
+                            # Send data to main
                             cmd = cmds_dict[bt_data]
                             self.to_controller('MANUAL',cmd)
                             print(f'BTSERVER: received {cmd} ({bt_data})')
+                        elif len(bt_data) > 1:
+                            print(f'BTSERVER: probably debug <<{bt_data}>>')
+
                     except IOError:
                         self.close_connection()
-                        state = 'NO_CONN'
+                        state = 'MK_CONN'
+                        self.to_controller('MANUAL','STOP')
                         self.to_controller('CONNECTION_BROKEN')
                         self.hello()
 
@@ -159,8 +163,6 @@ class BtServer(Thread):
                 # This state should never run! See bools at top of loop.
                 elif state == 'NO_CONN':
                     print('BTSERVER: wtf did you do man?!?!')
-
-
 
             else:
                 time.sleep(period)
