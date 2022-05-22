@@ -199,7 +199,7 @@ You are reading it now!
 
 > "A basic Work Breakdown Structure (WBS) shall be created for the intended scope of the project." 
 
-We have used Trello and time estimations there. The team leader will create a WBS for the entire project, so it cannot be found here.
+We have used Trello and time estimations there. An excel file can be found within "Logbook" with the time estimations.
 
 > "An individual log book for each team member shall be kept documenting what has been accomplished and what time has been spent." 
 
@@ -242,19 +242,31 @@ The numbers on each line is our difficulty estimation of the task.
   * RNR18. Document code in Pi. - 2
   * RNR19. Do complete system test. - 8
 
->  "Each Low level requirement or related software work package shall contain an estimate of how much work that is required for completion of the task." - Seen above.
+> "Each Low level requirement or related software work package shall contain an estimate of how much work that is required for completion of the task."
 
-> "The sum of all tasks and estimated efforts shall be compared with the time frame and resource availability of the project and planned accordingly." - Done when project is over.
+Seen above.
 
-> "Completion of tasks and used effort shall be compared with the plan and the estimates." - Done when project is over.
+> "The sum of all tasks and estimated efforts shall be compared with the time frame and resource availability of the project and planned accordingly."
+
+Done when project is over.
+
+> "Completion of tasks and used effort shall be compared with the plan and the estimates."
+
+Done when project is over.
 
 
 
 # Maximum
 
-> "The Software Design Document shall contain an architectural overvire of the system and its sub components." - An overview of the Arduino/mower is given here, a complete overview will be done in another document.
+> "The Software Design Document shall contain an architectural overvire of the system and its sub components."
 
-> "The source code shall be traceable to respective low level requirement." - Vital parts explained in this document.
+An overview of the Arduino/mower is given here, a complete overview will be done in another document.
 
-> "Test Cases shall be defined for all requirements and a test report produced" - Explained under the heading `diagnostic.ino`. This is solved by self-diagnostics which either returns `DIAGNOSTIC:ok` or for example `DIAGNOSTIC:2,3,5` if module 2, 3, and 5 failed, making this the "report".
+> "The source code shall be traceable to respective low level requirement."
+
+Vital parts explained in this document.
+
+> "Test Cases shall be defined for all requirements and a test report produced"
+
+Explained under the heading `diagnostic.ino`. This is solved by self-diagnostics which either returns `DIAGNOSTIC:ok` or for example `DIAGNOSTIC:2,3,5` if module 2, 3, and 5 failed, making this the "report".
 
