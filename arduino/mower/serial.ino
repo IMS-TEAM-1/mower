@@ -42,9 +42,7 @@ void doSerialTick(){
 
 ////As long as there are data available on the serial bus, read and store it, then acknowelge it to the Pi
 void readSerialData(){
-  if(Serial.available() > 0){
-    numberOfTicksMissed = 0;
-    
+  if(Serial.available() > 0){    
     recievedMessage = readSerialBus();
 
     setSerialDataRecieved(recievedMessage);
@@ -53,9 +51,6 @@ void readSerialData(){
 
     Serial.flush();
     
-  }
-  else{
-    numberOfTicksMissed++;
   }
 }
 
